@@ -1,0 +1,14 @@
+Revision history for Perl extension Email::Abstract.
+
+2.01    2004-11-04
+
+  - Minor Documentation Fix
+  - Author Change
+  - PEP Contact Added
+
+2.0   Wed Aug 25 12:12:37 BST 2004
+    - Handle subclasses
+0.01  Wed May 26 16:47:20 2004
+	- original version; created by h2xs 1.22 with options
+		-AX -b 5.6.0 -n Email::Abstract
+

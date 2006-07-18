@@ -1,24 +1,59 @@
-use Test::More "no_plan";
+use Test::More;
+
+my @classes
+  = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
+
+plan tests => 4 * @classes  +  1;
+
 use_ok("Email::Abstract");
+
 my $message = do { local $/; <DATA>; };
 
-for my $class (
-    qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message)) {
-    eval "require $class"; next if $@;
-    print "# $class\n";
+SKIP: for my $class (
+    qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message)
+) {
+    eval "require $class";
+    skip "$class can't be loaded", 4 if $@;
+    class_ok($class);
+}
+
+sub class_ok {
+    my ($class) = @_;
     my $obj = Email::Abstract->cast($message, $class);
-    isa_ok($obj, $class);
-    like(Email::Abstract->get_header($obj, "Subject"), qr/Re: Defect in XBD lround/, "Subject OK");
-    like(Email::Abstract->get_body($obj), qr/Fred Tydeman/, "Body OK");
-    Email::Abstract->set_header($obj, "Subject", "New Subject");
-    Email::Abstract->set_body($obj, "A completely new body");
-    like(Email::Abstract->as_string($obj), 
-        qr/Subject: New Subject.*completely new body$/ms, 
-        "Set and stringified");
+
+    isa_ok($obj, $class, "string cast to $class");
+
+    like(
+      Email::Abstract->get_header($obj, "Subject"),
+      qr/Re: Defect in XBD lround/,
+      "Subject OK with $class"
+    );
+
+    like(
+      Email::Abstract->get_body($obj),
+      qr/Fred Tydeman/,
+      "Body OK with $class"
+    );
+
+    Email::Abstract->set_header(
+      $obj,
+      "Subject",
+      "New Subject"
+    );
+
+    Email::Abstract->set_body(
+      $obj,
+      "A completely new body"
+    );
+
+    like(
+      Email::Abstract->as_string($obj), 
+      qr/Subject: New Subject.*completely new body$/ms, 
+      "set subject and body, restringified ok with $class"
+    );
 }
 
 __DATA__
-From mail-miner-10529@localhost Wed Dec 18 12:07:55 2002
 Received: from mailman.opengroup.org ([192.153.166.9])
 	by deep-dark-truthful-mirror.pad with smtp (Exim 3.36 #1 (Debian))
 	id 18Buh5-0006Zr-00

@@ -6,32 +6,72 @@ use strict;
 use warnings;
 our $VERSION = '2.01';
 use Module::Pluggable search_path => [ __PACKAGE__ ], require => 1;
+
 my @plugins = __PACKAGE__->plugins(); # Requires them.
-for my $func (qw(get_header get_body 
-                 set_header set_body 
-                 as_string)) {
+my %handled = map { $_->target => 1 } @plugins;
+
+sub object {
+    my ($self) = @_;
+    return unless ref $self;
+    return $$self;
+}
+
+sub new {
+    my ($class, $foreign) = @_;
+
+    $foreign = Email::Simple->new($foreign) unless ref $foreign;
+
+    if ($handled{ ref $foreign } or grep { $foreign->isa($_) } keys %handled) {
+      return bless \$foreign => $class;
+    }
+
+    croak "Don't know how to handle " . ref $foreign;
+}
+
+sub __default_class {
+    my ($self, $foreign) = @_;
+
+    $self = ref($self) || $self;
+    $foreign = ref $foreign;
+
+    $foreign =~ s/:://g;
+    return "$self\::$foreign";
+}
+
+for my $func (qw(get_header get_body set_header set_body as_string)) {
     no strict 'refs';
     *$func  = sub { 
-        my ($class, $thing, @args) = @_;
+        my $self = shift;
+        my ($thing, @args);
+
+        if ($thing = $self->object) {
+            @args = @_;
+        } else {
+            ($thing, @args) = @_;
+        }
+
         $thing = Email::Simple->new($thing) unless ref $thing;
-        my $target = ref $thing;
-        $target =~ s/:://g;
-        $class .= "::".$target;
+
+        my $class = $self->__default_class($thing);
+
         if ($class->can($func)) {
-            $class->$func($thing, @args);
+            return $class->$func($thing, @args);
         } else {
             for my $class (@plugins) { 
                 if ($class->can("target") and $thing->isa($class->target)) {
                     return $class->$func($thing, @args);
                 }
             }
-            croak "Don't know how to handle ".ref($thing);
+            croak "Don't know how to handle " . ref $thing;
         }
     };
 }
 
 sub cast {
     my ($class, $thing, $target) = @_;
+
+    if (ref $class) { $thing = $$class; $class = ref $class; }
+
     $thing = $class->as_string($thing) if ref $thing;
     $target =~ s/:://g;
     $class .= "::".$target;
@@ -51,7 +91,6 @@ sub cast {
 
 1;
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 

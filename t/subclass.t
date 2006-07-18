@@ -1,13 +1,18 @@
-package MyMail;
-use base "Email::Simple";
-1;
+{
+  package MyMail;
+  use base "Email::Simple";
+}
 
 package main;
-use Test::More tests => 1;
+use Test::More tests => 3;
 use Email::Abstract;
 my $message = do { local $/; <DATA>; };
 my $x = MyMail->new($message);
-like (Email::Abstract->as_string($x), qr/Farley's/, "Round trip with subclass");
+like(Email::Abstract->as_string($x), qr/Farley's/, "Round trip with subclass");
+
+my $y = Email::Abstract->new($x);
+isa_ok($y, 'Email::Abstract');
+like($y->as_string, qr/Farley's/, "Round trip subclass via object wrapped");
 
 __DATA__
 Received: from mailman.opengroup.org ([192.153.166.9])

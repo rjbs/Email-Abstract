@@ -7,12 +7,13 @@ sub construct {
     my ($class, $rfc822) = @_;
     Email::Simple->new($rfc822);
 }
+
 sub get_header { 
     my ($class, $obj, $header) = @_; 
     $obj->header($header); 
 }
 
-sub get_body   { 
+sub get_body { 
     my ($class, $obj) = @_; 
     $obj->body();
 }

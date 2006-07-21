@@ -4,7 +4,7 @@ use Email::Simple;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = '2.09_02';
+our $VERSION = '2.10';
 use Module::Pluggable search_path => [ __PACKAGE__ ], require => 1;
 
 my @plugins = __PACKAGE__->plugins(); # Requires them.
@@ -18,6 +18,8 @@ sub object {
 
 sub new {
     my ($class, $foreign) = @_;
+
+    $class = ref($class) || $class;
 
     $foreign = Email::Simple->new($foreign) unless ref $foreign;
 
@@ -137,6 +139,17 @@ All of these methods may be called either as object methods or as class
 methods.  When called as class methods, the email object (of any class
 supported by Email::Abstract) must be prepended to the list of arguments.
 
+=head2 new
+
+  my $email = Email::Abstract->new($message);
+
+Given a message, either as a string or as an object for which an adapter is
+installed, this method will return a Email::Abstract object wrapping the
+message.
+
+If the message is given as a string, it will be used to construct an object,
+which will then be wrapped.
+
 =head2 get_header
 
   my $header  = $email->get_header($header_name);
@@ -177,6 +190,17 @@ This changes the body of the email to the given string.
   my $string = Email::Abstract->as_string($message);
 
 This returns the whole email as a string.
+
+=head2 object
+
+  my $message = $email->object;
+
+This method returns the message object wrapped by Email::Abstract.  If called
+as a class method, it returns false.
+
+Note that, because strings are converted to message objects before wrapping,
+this method will return an object when the Email::Abstract was constructed from
+a string. 
 
 =head1 PERL EMAIL PROJECT
 

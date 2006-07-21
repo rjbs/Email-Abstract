@@ -47,17 +47,18 @@ sub __class_for {
     croak "Don't know how to handle " . $f_class;
 }
 
+sub _obj_and_args {
+  my $self = shift;
+
+  return @_ unless my $thing = $self->object;
+  return ($thing, @_);
+}
+
 for my $func (qw(get_header get_body set_header set_body as_string)) {
     no strict 'refs';
     *$func  = sub { 
         my $self = shift;
-        my ($thing, @args);
-
-        if ($thing = $self->object) {
-            @args = @_;
-        } else {
-            ($thing, @args) = @_;
-        }
+        my ($thing, @args) = $self->_obj_and_args(@_);
 
         unless (ref $thing) {
             croak "can't alter string in place" if substr($func, 0, 3) eq 'set';
@@ -71,13 +72,7 @@ for my $func (qw(get_header get_body set_header set_body as_string)) {
 
 sub cast {
     my $self = shift;
-    my ($from, $to);
-
-    if ($from = $self->object) {
-        $to = shift;
-    } else {
-        ($from, $to) = @_;
-    }
+    my ($from, $to) = $self->_obj_and_args(@_);
 
     croak "Don't know how to construct $to objects"
       unless $adapter_for{ $to } and $adapter_for{ $to }->can('construct');

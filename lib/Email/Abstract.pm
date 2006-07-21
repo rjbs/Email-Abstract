@@ -8,7 +8,7 @@ our $VERSION = '2.09_02';
 use Module::Pluggable search_path => [ __PACKAGE__ ], require => 1;
 
 my @plugins = __PACKAGE__->plugins(); # Requires them.
-my %handled = map { $_->target => 1 } @plugins;
+my %adapter_for = map { $_->target => $_ } @plugins;
 
 sub object {
     my ($self) = @_;
@@ -21,21 +21,28 @@ sub new {
 
     $foreign = Email::Simple->new($foreign) unless ref $foreign;
 
-    if ($handled{ ref $foreign } or grep { $foreign->isa($_) } keys %handled) {
+    if (
+      $adapter_for{ref $foreign} or grep { $foreign->isa($_) } keys %adapter_for
+    ) {
       return bless \$foreign => $class;
     }
 
     croak "Don't know how to handle " . ref $foreign;
 }
 
-sub __default_class {
-    my ($self, $foreign) = @_;
+sub __class_for {
+    my ($self, $foreign, $method) = @_;
 
-    $self = ref($self) || $self;
-    $foreign = ref $foreign;
+    my $f_class = ref($foreign) || $foreign;
 
-    $foreign =~ s/:://g;
-    return "$self\::$foreign";
+    return $adapter_for{ $f_class } if exists $adapter_for{ $f_class };
+
+    require Class::ISA;
+    for my $base (Class::ISA::super_path($f_class)) {
+        return $adapter_for{ $base } if exists $adapter_for{ $base }
+    }
+
+    croak "Don't know how to handle " . $f_class;
 }
 
 for my $func (qw(get_header get_body set_header set_body as_string)) {
@@ -52,18 +59,8 @@ for my $func (qw(get_header get_body set_header set_body as_string)) {
 
         $thing = Email::Simple->new($thing) unless ref $thing;
 
-        my $class = $self->__default_class($thing);
-
-        if ($class->can($func)) {
-            return $class->$func($thing, @args);
-        } else {
-            for my $class (@plugins) { 
-                if ($class->can("target") and $thing->isa($class->target)) {
-                    return $class->$func($thing, @args);
-                }
-            }
-            croak "Don't know how to handle " . ref $thing;
-        }
+        my $class = $self->__class_for($thing, $func);
+        return $class->$func($thing, @args);
     };
 }
 
@@ -94,24 +91,27 @@ __END__
 
 =head1 NAME
 
-Email::Abstract - Unified interface to mail representations
+Email::Abstract - unified interface to mail representations
 
 =head1 SYNOPSIS
 
   my $message = Mail::Message->read($rfc822)
-                || Email::Simple->new($rfc822)
-                || Mail::Internet->new([split /\n/, $rfc822])
-                || ...;
+             || Email::Simple->new($rfc822)
+             || Mail::Internet->new([split /\n/, $rfc822])
+             || ...
+             || $rfc822;
 
-  my $subject = Email::Abstract->get_header($message, "Subject");
-  Email::Abstract->set_header($message, "Subject", "My new subject");
+  my $email = Email::Abstract->new($message);
 
-  my $body = Email::Abstract->get_body($message);
-  Email::Abstract->set_body($message, "Hello\nTest message\n");
+  my $subject = $email->get_header("Subject");
+  $email->set_header(Subject => "My new subject");
 
-  $rfc822 = Email::Abstract->as_string($message);
+  my $body = $email->get_body;
+  $email->set_body("Hello\nTest message\n");
 
-  my $mail_message = Email::Abstract->cast($message, "Mail::Message");
+  $rfc822 = $email->as_string;
+
+  my $mail_message = $email->cast("Mail::Message");
 
 =head1 DESCRIPTION
 
@@ -133,23 +133,48 @@ automatically picked up and used.
 
 =head1 METHODS
 
-=head2 get_header($obj, $header)
+All of these methods may be called either as object methods or as class
+methods.  When called as class methods, the email object (of any class
+supported by Email::Abstract) must be prepended to the list of arguments.
+
+=head2 get_header
+
+  my $header  = $email->get_header($header_name);
+  my $header  = Email::Abstract->get_header($message, $header_name);
+
+  my @headers = $email->get_header($header_name);
+  my @headers = Email::Abstract->get_header($message, $header_name);
 
 This returns the value or list of values of the given header.
 
-=head2 set_header($obj, $header, @lines)
+=head2 set_header
+
+  $email->set_header($header => @lines);
+  Email::Abstract->set_header($message, $header => @lines);
 
 This sets the C<$header> header to the given one or more values.
 
-=head2 get_body($obj)
+=head2 get_body
+
+  my $body = $email->get_body;
+
+  my $body = Email::Abstract->get_body($message);
 
 This returns the body as a string.
 
-=head2 set_body($obj, $string)
+=head2 set_body
+
+  $email->set_body($string);
+
+  Email::Abstract->set_body($message, $string);
 
 This changes the body of the email to the given string.
 
-=head2 as_string($obj)
+=head2 as_string
+
+  my $string = $email->as_string;
+
+  my $string = Email::Abstract->as_string($message);
 
 This returns the whole email as a string.
 
@@ -164,6 +189,8 @@ This module is maintained by the Perl Email Project
 Casey West, <F<casey@geeknest.com>>
 
 Simon Cozens, <F<simon@cpan.org>>
+
+Ricardo SIGNES, <F<rjbs@cpan.org>>
 
 =head1 COPYRIGHT AND LICENSE
 

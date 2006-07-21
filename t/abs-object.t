@@ -1,32 +1,52 @@
-{
-  package MyMail;
-  use base "Email::Simple";
-}
+use Test::More;
 
-package main;
-use Test::More tests => 4;
-use Email::Abstract;
+my @classes
+  = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
+
+plan tests => 5 * @classes  +  1;
+
+use_ok("Email::Abstract");
+
 my $message = do { local $/; <DATA>; };
-my $x = MyMail->new($message);
-like(Email::Abstract->as_string($x), qr/Farley's/, "Round trip with subclass");
 
-my $y = Email::Abstract->new($x);
-isa_ok($y, 'Email::Abstract');
-like($y->as_string, qr/Farley's/, "Round trip subclass via object wrapped");
-
-{ # should always adapt as if it's MIME::Entity, the nearest class
-  package MultiHopMail;
-  use base "MIME::Entity";
+SKIP: for my $class (@classes) {
+    eval "require $class";
+    skip "$class can't be loaded", 4 if $@;
+    class_ok($class);
 }
 
-# We're digging deep into the guts, here.  Wear gloves.
-# In previous versions, this could return Email::Abstract::MailInternet,
-# because inheritance order was not respected.
-is(
-  Email::Abstract->__class_for('MultiHopMail'),
-  'Email::Abstract::MIMEEntity',
-  "we get the nearest path in inheritance order",
-);
+sub class_ok {
+    my ($class) = @_;
+
+    my $foreign = Email::Abstract->cast($message, $class);
+    isa_ok($foreign, $class, "string cast to $class");
+
+    my $obj = Email::Abstract->new($foreign);
+
+    isa_ok($obj, 'Email::Abstract', "$class wrapped by Email::Abstract");
+
+    like(
+      $obj->get_header("Subject"),
+      qr/Re: Defect in XBD lround/,
+      "Subject OK with $class"
+    );
+
+    like(
+      $obj->get_body,
+      qr/Fred Tydeman/,
+      "Body OK with $class"
+    );
+
+    $obj->set_header("Subject", "New Subject");
+
+    $obj->set_body("A completely new body");
+
+    like(
+      $obj->as_string, 
+      qr/Subject: New Subject.*completely new body$/ms, 
+      "set subject and body, restringified ok with $class"
+    );
+}
 
 __DATA__
 Received: from mailman.opengroup.org ([192.153.166.9])

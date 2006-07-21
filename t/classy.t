@@ -3,7 +3,7 @@ use Test::More;
 my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
-plan tests => 4 * @classes  +  1;
+plan tests => 6 * @classes  +  6;
 
 use_ok("Email::Abstract");
 
@@ -14,14 +14,18 @@ SKIP: for my $class (
 ) {
     eval "require $class";
     skip "$class can't be loaded", 4 if $@;
-    class_ok($class);
-}
 
-sub class_ok {
-    my ($class) = @_;
     my $obj = Email::Abstract->cast($message, $class);
 
     isa_ok($obj, $class, "string cast to $class");
+
+    class_ok($class, $obj, 0);
+}
+
+class_ok('plaintext', $message, 1);
+
+sub class_ok {
+    my ($class, $obj, $readonly) = @_;
 
     like(
       Email::Abstract->get_header($obj, "Subject"),
@@ -35,22 +39,42 @@ sub class_ok {
       "Body OK with $class"
     );
 
-    Email::Abstract->set_header(
-      $obj,
-      "Subject",
-      "New Subject"
-    );
+    eval {
+      Email::Abstract->set_header(
+        $obj,
+        "Subject",
+        "New Subject"
+      );
+    };
 
-    Email::Abstract->set_body(
-      $obj,
-      "A completely new body"
-    );
+    if ($readonly) {
+      like($@, qr/can't alter string/, "can't alter an unwrapped string");
+    } else {
+      ok(!$@, "no exception on altering object via Email::Abstract");
+    }
 
-    like(
-      Email::Abstract->as_string($obj), 
-      qr/Subject: New Subject.*completely new body$/ms, 
-      "set subject and body, restringified ok with $class"
-    );
+    eval {
+      Email::Abstract->set_body(
+        $obj,
+        "A completely new body"
+      );
+    };
+
+    if ($readonly) {
+      like($@, qr/can't alter string/, "can't alter an unwrapped string");
+    } else {
+      ok(!$@, "no exception on altering object via Email::Abstract");
+    }
+
+    if ($readonly) {
+      pass("(no test; can't check altering unalterable alteration)");
+    } else {
+      like(
+        Email::Abstract->as_string($obj), 
+        qr/Subject: New Subject.*completely new body$/ms, 
+        "set subject and body, restringified ok with $class"
+      );
+    }
 }
 
 __DATA__

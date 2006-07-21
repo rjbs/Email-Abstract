@@ -59,7 +59,10 @@ for my $func (qw(get_header get_body set_header set_body as_string)) {
             ($thing, @args) = @_;
         }
 
-        $thing = Email::Simple->new($thing) unless ref $thing;
+        unless (ref $thing) {
+            croak "can't alter string in place" if substr($func, 0, 3) eq 'set';
+            $thing = Email::Simple->new($thing)
+        }
 
         my $class = $self->__class_for($thing, $func);
         return $class->$func($thing, @args);

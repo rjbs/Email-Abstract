@@ -1,5 +1,9 @@
 use Test::More;
 
+use lib 't/lib';
+
+use Test::EmailAbstract;
+
 my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
@@ -19,63 +23,10 @@ SKIP: for my $class (
 
     isa_ok($obj, $class, "string cast to $class");
 
-    class_ok($class, $obj, 0);
+    Test::EmailAbstract::class_ok($class, $obj, 0);
 }
 
-class_ok('plaintext', $message, 1);
-
-sub class_ok {
-    my ($class, $obj, $readonly) = @_;
-
-    like(
-      Email::Abstract->get_header($obj, "Subject"),
-      qr/Re: Defect in XBD lround/,
-      "Subject OK with $class"
-    );
-
-    like(
-      Email::Abstract->get_body($obj),
-      qr/Fred Tydeman/,
-      "Body OK with $class"
-    );
-
-    eval {
-      Email::Abstract->set_header(
-        $obj,
-        "Subject",
-        "New Subject"
-      );
-    };
-
-    if ($readonly) {
-      like($@, qr/can't alter string/, "can't alter an unwrapped string");
-    } else {
-      ok(!$@, "no exception on altering object via Email::Abstract");
-    }
-
-    eval {
-      Email::Abstract->set_body(
-        $obj,
-        "A completely new body"
-      );
-    };
-
-    if ($readonly) {
-      like($@, qr/can't alter string/, "can't alter an unwrapped string");
-    } else {
-      ok(!$@, "no exception on altering object via Email::Abstract");
-    }
-
-    if ($readonly) {
-      pass("(no test; can't check altering unalterable alteration)");
-    } else {
-      like(
-        Email::Abstract->as_string($obj), 
-        qr/Subject: New Subject.*completely new body$/ms, 
-        "set subject and body, restringified ok with $class"
-      );
-    }
-}
+Test::EmailAbstract::class_ok('plaintext', $message, 1);
 
 __DATA__
 Received: from mailman.opengroup.org ([192.153.166.9])

@@ -1,9 +1,16 @@
+
+use strict;
+
 use Test::More;
+
+use lib 't/lib';
+
+use Test::EmailAbstract;
 
 my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
-plan tests => 5 * @classes  +  1;
+plan tests => 6 * @classes  +  6;
 
 use_ok("Email::Abstract");
 
@@ -12,41 +19,18 @@ my $message = do { local $/; <DATA>; };
 SKIP: for my $class (@classes) {
     eval "require $class";
     skip "$class can't be loaded", 4 if $@;
-    class_ok($class);
+
+    my $obj = Email::Abstract->cast($message, $class);
+
+    my $email_abs = Email::Abstract->new($obj);
+
+    isa_ok($email_abs, 'Email::Abstract', "wrapped $class object");
+
+    Test::EmailAbstract::wrapped_ok($class, $email_abs, 0);
 }
 
-sub class_ok {
-    my ($class) = @_;
-
-    my $foreign = Email::Abstract->cast($message, $class);
-    isa_ok($foreign, $class, "string cast to $class");
-
-    my $obj = Email::Abstract->new($foreign);
-
-    isa_ok($obj, 'Email::Abstract', "$class wrapped by Email::Abstract");
-
-    like(
-      $obj->get_header("Subject"),
-      qr/Re: Defect in XBD lround/,
-      "Subject OK with $class"
-    );
-
-    like(
-      $obj->get_body,
-      qr/Fred Tydeman/,
-      "Body OK with $class"
-    );
-
-    $obj->set_header("Subject", "New Subject");
-
-    $obj->set_body("A completely new body");
-
-    like(
-      $obj->as_string, 
-      qr/Subject: New Subject.*completely new body$/ms, 
-      "set subject and body, restringified ok with $class"
-    );
-}
+my $email_abs = Email::Abstract->new($message);
+Test::EmailAbstract::wrapped_ok('plaintext', $email_abs, 0);
 
 __DATA__
 Received: from mailman.opengroup.org ([192.153.166.9])

@@ -70,23 +70,21 @@ for my $func (qw(get_header get_body set_header set_body as_string)) {
 }
 
 sub cast {
-    my ($class, $thing, $target) = @_;
+    my $self = shift;
+    my ($from, $to);
 
-    if (ref $class) { $thing = $$class; $class = ref $class; }
-
-    $thing = $class->as_string($thing) if ref $thing;
-    $target =~ s/:://g;
-    $class .= "::".$target;
-    if ($class->can("construct")) {
-        $class->construct($thing);
+    if ($from = $self->object) {
+        $to = shift;
     } else {
-        for my $class (@plugins) { 
-            if ($class->can("target") and $thing->isa($class->target)) {
-                return $class->construct($thing);
-            }
-        }
-        croak "Don't know how to handle $class";
+        ($from, $to) = @_;
     }
+
+    croak "Don't know how to construct $to objects"
+      unless $adapter_for{ $to } and $adapter_for{ $to }->can('construct');
+
+    my $from_string = ref($from) ? $self->as_string($from) : $from;
+
+    return $adapter_for{ $to }->construct($from_string);
 }
 
 # Preloaded methods go here.
@@ -193,6 +191,15 @@ This changes the body of the email to the given string.
   my $string = Email::Abstract->as_string($message);
 
 This returns the whole email as a string.
+
+=head2 cast
+
+  my $mime_entity = $email->cast('MIME::Entity');
+  my $mime_entity = Email::Abstract->cast($message, 'MIME::Entity');
+
+This method will convert a message from one message class to another.  It will
+throw an exception if no adapter for the target class is known, or if the
+adapter does not provide a C<construct> method.
 
 =head2 object
 

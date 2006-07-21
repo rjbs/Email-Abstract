@@ -10,4 +10,5 @@ MANIFEST			This list of files
 README
 t/abs-object.t
 t/classy.t
+t/lib/Test/EmailAbstract.pm
 t/subclass.t

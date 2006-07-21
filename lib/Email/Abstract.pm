@@ -4,7 +4,7 @@ use Email::Simple;
 use 5.006;
 use strict;
 use warnings;
-our $VERSION = '2.01';
+our $VERSION = '2.09_02';
 use Module::Pluggable search_path => [ __PACKAGE__ ], require => 1;
 
 my @plugins = __PACKAGE__->plugins(); # Requires them.
@@ -153,6 +153,12 @@ This changes the body of the email to the given string.
 
 This returns the whole email as a string.
 
+=head1 PERL EMAIL PROJECT
+
+This module is maintained by the Perl Email Project
+
+  L<http://emailproject.perl.org/wiki/Email::Abstract>
+
 =head1 AUTHOR
 
 Casey West, <F<casey@geeknest.com>>
@@ -165,9 +171,5 @@ Copyright 2004 by Simon Cozens
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
-
-=head1 SEE ALSO
-
-http://pep.kwiki.org
 
 =cut

@@ -5,6 +5,7 @@ Revision history for Perl extension Email::Abstract.
   - add a new method to create wrapper objects
   - handle subclasses /properly/ (correct ISA order)
   - improved tests and test coverage
+  - miscellaneous refactoring
   - update PEP URL
   - update documentation
 

@@ -14,6 +14,7 @@ sub _call {
   }
 }
 
+# This is responsible for running 5 tests.
 sub _test_object {
     my ($wrapped, $class, $obj, $readonly) = @_;
 

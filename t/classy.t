@@ -7,23 +7,25 @@ use Test::EmailAbstract;
 my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
-plan tests => 6 * @classes  +  6;
+plan tests => 1  +  6 * @classes  +  5;
 
 use_ok("Email::Abstract");
 
 my $message = do { local $/; <DATA>; };
 
-SKIP: for my $class (
+for my $class (
     qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message)
 ) {
-    eval "require $class";
-    skip "$class can't be loaded", 4 if $@;
+    SKIP: {
+        eval "require $class";
+        skip "$class can't be loaded", 6 if $@;
 
-    my $obj = Email::Abstract->cast($message, $class);
+        my $obj = Email::Abstract->cast($message, $class);
 
-    isa_ok($obj, $class, "string cast to $class");
+        isa_ok($obj, $class, "string cast to $class");
 
-    Test::EmailAbstract::class_ok($class, $obj, 0);
+        Test::EmailAbstract::class_ok($class, $obj, 0);
+    }
 }
 
 Test::EmailAbstract::class_ok('plaintext', $message, 1);

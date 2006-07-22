@@ -1,5 +1,9 @@
 Revision history for Perl extension Email::Abstract.
 
+2.10     2006-07-22
+
+  - better test planning
+
 2.10     2006-07-21
 
   - add a new method to create wrapper objects

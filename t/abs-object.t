@@ -10,23 +10,25 @@ use Test::EmailAbstract;
 my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
-plan tests => 6 * @classes  +  6;
+plan tests => 1  +  6 * @classes  +  5;
 
 use_ok("Email::Abstract");
 
 my $message = do { local $/; <DATA>; };
 
-SKIP: for my $class (@classes) {
-    eval "require $class";
-    skip "$class can't be loaded", 4 if $@;
+for my $class (@classes) {
+    SKIP: {
+        eval "require $class";
+        skip "$class can't be loaded", 6 if $@;
 
-    my $obj = Email::Abstract->cast($message, $class);
+        my $obj = Email::Abstract->cast($message, $class);
 
-    my $email_abs = Email::Abstract->new($obj);
+        my $email_abs = Email::Abstract->new($obj);
 
-    isa_ok($email_abs, 'Email::Abstract', "wrapped $class object");
+        isa_ok($email_abs, 'Email::Abstract', "wrapped $class object");
 
-    Test::EmailAbstract::wrapped_ok($class, $email_abs, 0);
+        Test::EmailAbstract::wrapped_ok($class, $email_abs, 0);
+    }
 }
 
 my $email_abs = Email::Abstract->new($message);

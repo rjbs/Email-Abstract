@@ -1,6 +1,10 @@
 Revision history for Perl extension Email::Abstract.
 
-2.10     2006-07-22
+2.12     2006-07-24
+
+  - don't use MIME::Entity in test if it's not available
+
+2.11     2006-07-22
 
   - better test planning
 

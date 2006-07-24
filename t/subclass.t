@@ -14,19 +14,24 @@ my $y = Email::Abstract->new($x);
 isa_ok($y, 'Email::Abstract');
 like($y->as_string, qr/Farley's/, "Round trip subclass via object wrapped");
 
-{ # should always adapt as if it's MIME::Entity, the nearest class
-  package MultiHopMail;
-  use base "MIME::Entity";
-}
+SKIP: {
+  skip "this test requires MIME::Entity", 1
+    unless eval { require MIME::Entity; 1 };
+  { # should always adapt as if it's MIME::Entity, the nearest class
+    package MultiHopMail;
+    require MIME::Entity;
+    @MultiHopMail::ISA = qw(MIME::Entity);
+  }
 
-# We're digging deep into the guts, here.  Wear gloves.
-# In previous versions, this could return Email::Abstract::MailInternet,
-# because inheritance order was not respected.
-is(
-  Email::Abstract->__class_for('MultiHopMail'),
-  'Email::Abstract::MIMEEntity',
-  "we get the nearest path in inheritance order",
-);
+  # We're digging deep into the guts, here.  Wear gloves.
+  # In previous versions, this could return Email::Abstract::MailInternet,
+  # because inheritance order was not respected.
+  is(
+    Email::Abstract->__class_for('MultiHopMail'),
+    'Email::Abstract::MIMEEntity',
+    "we get the nearest path in inheritance order",
+  );
+}
 
 __DATA__
 Received: from mailman.opengroup.org ([192.153.166.9])

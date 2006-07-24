@@ -19,6 +19,8 @@ sub object {
 sub new {
     my ($class, $foreign) = @_;
 
+    return $foreign if eval { $foreign->isa($class) };
+
     $class = ref($class) || $class;
 
     $foreign = Email::Simple->new($foreign) unless ref $foreign;
@@ -59,6 +61,10 @@ for my $func (qw(get_header get_body set_header set_body as_string)) {
     *$func  = sub { 
         my $self = shift;
         my ($thing, @args) = $self->_obj_and_args(@_);
+
+        # In the event of Email::Abstract->get_body($email_abstract), convert
+        # it into an object method call.
+        $thing = $thing->object if eval { $thing->isa($self) };
 
         unless (ref $thing) {
             croak "can't alter string in place" if substr($func, 0, 3) eq 'set';

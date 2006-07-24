@@ -10,7 +10,7 @@ use Test::EmailAbstract;
 my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
-plan tests => 1  +  6 * @classes  +  5;
+plan tests => 1  +  6 * @classes  +  5 * 2  +  1;
 
 use_ok("Email::Abstract");
 
@@ -31,8 +31,22 @@ for my $class (@classes) {
     }
 }
 
-my $email_abs = Email::Abstract->new($message);
-Test::EmailAbstract::wrapped_ok('plaintext', $email_abs, 0);
+{
+  my $email_abs = Email::Abstract->new($message);
+  Test::EmailAbstract::wrapped_ok('plaintext', $email_abs, 0);
+}
+
+{
+  # Ensure that we can use Email::Abstract->header($abstract, 'foo')
+  my $email_abs = Email::Abstract->new($message);
+  Test::EmailAbstract::class_ok('plaintext (via class)', $email_abs, 0);
+
+  my $email_abs_new = Email::Abstract->new($email_abs);
+  ok(
+    $email_abs == $email_abs_new,
+    "trying to wrap a wrapper returns the wrapper; it doesn't re-wrap",
+  );
+}
 
 __DATA__
 Received: from mailman.opengroup.org ([192.153.166.9])

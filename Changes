@@ -2,6 +2,11 @@ Revision history for Perl extension Email::Abstract.
 
 2.12     2006-07-24
 
+  - test for and permit passing Email::Abstract objects to Email::Abstract
+    class methods
+
+2.12     2006-07-24
+
   - don't use MIME::Entity in test if it's not available
 
 2.11     2006-07-22

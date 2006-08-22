@@ -1,6 +1,10 @@
 Revision history for Perl extension Email::Abstract.
 
-2.12     2006-07-24
+2.131    2006-08-22
+
+  - pod tests
+
+2.13     2006-07-24
 
   - test for and permit passing Email::Abstract objects to Email::Abstract
     class methods

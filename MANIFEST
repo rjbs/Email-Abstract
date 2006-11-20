@@ -14,3 +14,4 @@ t/lib/Test/EmailAbstract.pm
 t/pod.t
 t/pod-coverage.t
 t/subclass.t
+LICENSE

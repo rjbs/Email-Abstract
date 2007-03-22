@@ -1,43 +1,38 @@
 Revision history for Perl extension Email::Abstract.
 
-2.131    2006-08-22
+2.132   2007-03-22
+        packaging improvements
 
-  - pod tests
+2.131   2006-08-22
+        pod tests
 
-2.13     2006-07-24
+2.13    2006-07-24
+        test for and permit passing Email::Abstract objects to Email::Abstract
+        class methods
 
-  - test for and permit passing Email::Abstract objects to Email::Abstract
-    class methods
+2.12    2006-07-24
+        don't use MIME::Entity in test if it's not available
 
-2.12     2006-07-24
+2.11    2006-07-22
+        better test planning
 
-  - don't use MIME::Entity in test if it's not available
+2.10    2006-07-21
+        add a new method to create wrapper objects
+        handle subclasses /properly/ (correct ISA order)
+        improved tests and test coverage
+        miscellaneous refactoring
+        update PEP URL
+        update documentation
 
-2.11     2006-07-22
+2.01    2004-11-04
+        Minor Documentation Fix
+        Author Change
+        PEP Contact Added
 
-  - better test planning
+2.0     2004-08-25 12:12:37 BST
+        Handle subclasses
 
-2.10     2006-07-21
-
-  - add a new method to create wrapper objects
-  - handle subclasses /properly/ (correct ISA order)
-  - improved tests and test coverage
-  - miscellaneous refactoring
-  - update PEP URL
-  - update documentation
-
-2.01     2004-11-04
-
-  - Minor Documentation Fix
-  - Author Change
-  - PEP Contact Added
-
-2.0      2004-08-25 12:12:37 BST
-
-  - Handle subclasses
-
-0.01     2004-05-26 16:47 20
-
-	- original version; created by h2xs 1.22 with options
-		-AX -b 5.6.0 -n Email::Abstract
+0.01    2004-05-26 16:47 20
+        original version; created by h2xs 1.22 with options
+          -AX -b 5.6.0 -n Email::Abstract
 

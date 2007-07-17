@@ -1,5 +1,8 @@
 Revision history for Perl extension Email::Abstract.
 
+2.133   2007-07-??
+        improved tests
+
 2.132   2007-03-22
         packaging improvements
 

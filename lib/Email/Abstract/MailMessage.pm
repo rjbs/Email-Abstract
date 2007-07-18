@@ -1,5 +1,6 @@
 package Email::Abstract::MailMessage;
 use strict;
+
 sub target {"Mail::Message" }
 
 sub construct {
@@ -7,6 +8,7 @@ sub construct {
     my ($class, $rfc822) = @_;
     Mail::Message->read($rfc822);
 }
+
 sub get_header { 
     my ($class, $obj, $header) = @_; 
     $obj->head->get($header);
@@ -20,18 +22,17 @@ sub get_body   {
 sub set_header { 
     my ($class, $obj, $header, @data) = @_; 
     $obj->head->delete($header);
-    $obj->head->add($header, $_) for @data; # Madness
+    $obj->head->add($header, $_) for @data;
 }
 
 sub set_body   {
     my ($class, $obj, $body) = @_; 
-    $obj->body(Mail::Message::Body->new(data => [split /\n/, $body]));
-    # Madness, madness
+    $obj->body(Mail::Message::Body->new(data => $body));
 }
 
 sub as_string { 
     my ($class, $obj) = @_; 
-    $obj->string();
+    $obj->string;
 }
 
 1;

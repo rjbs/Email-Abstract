@@ -1,19 +1,19 @@
 package Email::Abstract;
 use Carp;
 use Email::Simple;
-use 5.006;
+# use 5.006;
+# use warnings;
 use strict;
-use warnings;
-our $VERSION = '2.133';
+$Email::Abstract::VERSION = '2.133';
 use Module::Pluggable search_path => [__PACKAGE__], require => 1;
 
-my @plugins = __PACKAGE__->plugins();                # Requires them.
+my @plugins = __PACKAGE__->plugins(); # Requires them.
 my %adapter_for = map { $_->target => $_ } @plugins;
 
 sub object {
   my ($self) = @_;
   return unless ref $self;
-  return $$self;
+  return $self->[0];
 }
 
 sub new {
@@ -21,15 +21,10 @@ sub new {
 
   return $foreign if eval { $foreign->isa($class) };
 
-  $class = ref($class) || $class;
-
   $foreign = Email::Simple->new($foreign) unless ref $foreign;
 
-  if (
-    $adapter_for{ ref $foreign }
-    or grep { $foreign->isa($_) } keys %adapter_for)
-  ) {
-    return bless \$foreign => $class;
+  if (my $adapter = $class->__class_for($foreign)) {
+    return bless [ $foreign, $adapter ] => $class;
   }
 
   croak "Don't know how to handle " . ref $foreign;
@@ -39,6 +34,8 @@ sub __class_for {
   my ($self, $foreign, $method) = @_;
 
   my $f_class = ref($foreign) || $foreign;
+
+  return $f_class if ref $foreign and $f_class->isa($self);
 
   return $adapter_for{$f_class} if exists $adapter_for{$f_class};
 
@@ -50,23 +47,30 @@ sub __class_for {
   croak "Don't know how to handle " . $f_class;
 }
 
-sub _obj_and_args {
+sub _adapter_obj_and_args {
   my $self = shift;
 
-  return @_ unless my $thing = $self->object;
-  return ($thing, @_);
+  if (my $thing = $self->object) {
+    return ($self->[1], $thing, @_);
+  } else {
+    my $thing   = shift;
+    my $adapter = $self->__class_for(ref $thing ? $thing : 'Email::Simple');
+    return ($adapter, $thing, @_);
+  }
 }
 
 for my $func (qw(get_header get_body set_header set_body as_string)) {
   no strict 'refs';
   *$func = sub {
     my $self = shift;
-    my ($thing, @args) = $self->_obj_and_args(@_);
+    my ($adapter, $thing, @args) = $self->_adapter_obj_and_args(@_);
 
     # In the event of Email::Abstract->get_body($email_abstract), convert
     # it into an object method call.
     $thing = $thing->object if eval { $thing->isa($self) };
 
+    # I suppose we could work around this by leaving @_ intact and assigning to
+    # it.  That seems ... not good. -- rjbs, 2007-07-18
     unless (ref $thing) {
       croak "can't alter string in place" if substr($func, 0, 3) eq 'set';
       $thing = Email::Simple->new($thing);
@@ -79,17 +83,16 @@ for my $func (qw(get_header get_body set_header set_body as_string)) {
 
 sub cast {
   my $self = shift;
-  my ($from, $to) = $self->_obj_and_args(@_);
+  my ($from_adapter, $from, $to) = $self->_adapter_obj_and_args(@_);
 
+  my $adapter = $self->__class_for($to);
   croak "Don't know how to construct $to objects"
-    unless $adapter_for{$to} and $adapter_for{$to}->can('construct');
+    unless $adapter and $adapter->can('construct');
 
-  my $from_string = ref($from) ? $self->as_string($from) : $from;
+  my $from_string = ref($from) ? $from_adapter->as_string($from) : $from;
 
-  return $adapter_for{$to}->construct($from_string);
+  return $adapter->construct($from_string);
 }
-
-# Preloaded methods go here.
 
 1;
 __END__
@@ -112,7 +115,6 @@ Email::Abstract - unified interface to mail representations
   $email->set_header(Subject => "My new subject");
 
   my $body = $email->get_body;
-  $email->set_body("Hello\nTest message\n");
 
   $rfc822 = $email->as_string;
 
@@ -121,26 +123,29 @@ Email::Abstract - unified interface to mail representations
 =head1 DESCRIPTION
 
 C<Email::Abstract> provides module writers with the ability to write
-representation-independent mail handling code. For instance, in the
-cases of C<Mail::Thread> or C<Mail::ListDetector>, a key part of the
-code involves reading the headers from a mail object. Where previously
-one would either have to specify the mail class required, or to build a
-new object from scratch, C<Email::Abstract> can be used to perform
-certain simple operations on an object regardless of its underlying
-representation.
+simple, representation-independent mail handling code. For instance, in the
+cases of C<Mail::Thread> or C<Mail::ListDetector>, a key part of the code
+involves reading the headers from a mail object. Where previously one would
+either have to specify the mail class required, or to build a new object from
+scratch, C<Email::Abstract> can be used to perform certain simple operations on
+an object regardless of its underlying representation.
 
-C<Email::Abstract> currently supports C<Mail::Internet>,
-C<MIME::Entity>, C<Mail::Message>, C<Email::Simple> and C<Email::MIME>.
-Other representations are encouraged to create their own
-C<Email::Abstract::*> class by copying C<Email::Abstract::EmailSimple>.
-All modules installed under the C<Email::Abstract> hierarchy will be
-automatically picked up and used.
+C<Email::Abstract> currently supports C<Mail::Internet>, C<MIME::Entity>,
+C<Mail::Message>, C<Email::Simple> and C<Email::MIME>.  Other representations
+are encouraged to create their own C<Email::Abstract::*> class by copying
+C<Email::Abstract::EmailSimple>.  All modules installed under the
+C<Email::Abstract> hierarchy will be automatically picked up and used.
 
 =head1 METHODS
 
 All of these methods may be called either as object methods or as class
 methods.  When called as class methods, the email object (of any class
-supported by Email::Abstract) must be prepended to the list of arguments.
+supported by Email::Abstract) must be prepended to the list of arguments, like
+so:
+
+  my $return = Email::Abstract->method($message, @args);
+
+This is provided primarily for backwards compatibility.
 
 =head2 new
 
@@ -156,17 +161,15 @@ which will then be wrapped.
 =head2 get_header
 
   my $header  = $email->get_header($header_name);
-  my $header  = Email::Abstract->get_header($message, $header_name);
 
   my @headers = $email->get_header($header_name);
-  my @headers = Email::Abstract->get_header($message, $header_name);
 
-This returns the value or list of values of the given header.
+This returns the values for the given header.  In scalar context, it returns
+the first value.
 
 =head2 set_header
 
-  $email->set_header($header => @lines);
-  Email::Abstract->set_header($message, $header => @lines);
+  $email->set_header($header => @values);
 
 This sets the C<$header> header to the given one or more values.
 
@@ -174,30 +177,32 @@ This sets the C<$header> header to the given one or more values.
 
   my $body = $email->get_body;
 
-  my $body = Email::Abstract->get_body($message);
-
 This returns the body as a string.
 
 =head2 set_body
 
   $email->set_body($string);
 
-  Email::Abstract->set_body($message, $string);
-
 This changes the body of the email to the given string.
+
+B<WARNING!>  You probably don't want to call this method, despite what you may
+think.  Email message bodies are complicated, and rely on things like content
+type, encoding, and various MIME requirements.  If you call C<set_body> on a
+message more complicated than a single-part seven-bit plain-text message, you
+are likely to break something.  If you need to do this sort of thing, you
+should probably use a specific message class from end to end.
+
+This method is left in place for backwards compatibility.
 
 =head2 as_string
 
   my $string = $email->as_string;
 
-  my $string = Email::Abstract->as_string($message);
-
-This returns the whole email as a string.
+This returns the whole email as a decoded string.
 
 =head2 cast
 
   my $mime_entity = $email->cast('MIME::Entity');
-  my $mime_entity = Email::Abstract->cast($message, 'MIME::Entity');
 
 This method will convert a message from one message class to another.  It will
 throw an exception if no adapter for the target class is known, or if the

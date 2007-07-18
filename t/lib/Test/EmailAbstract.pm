@@ -1,5 +1,4 @@
 use strict;
-use warnings;
 
 package Test::EmailAbstract;
 use Test::More;

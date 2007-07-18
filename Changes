@@ -1,6 +1,11 @@
 Revision history for Perl extension Email::Abstract.
 
 2.133   2007-07-??
+        add test to ensure that "can't handle" exception is thrown ASAP
+        remove unexplained requirement for perl 5.6
+        fix Mail::Message body setter
+        fix body handling for Mail::Internet
+        improved consistency of method used to find adapter class
         improved tests
 
 2.132   2007-03-22

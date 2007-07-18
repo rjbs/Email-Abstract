@@ -5,7 +5,7 @@ sub target { "Mail::Internet" }
 sub construct {
     require Mail::Internet;
     my ($class, $rfc822) = @_;
-    Mail::Internet->new([ split /\n/, $rfc822]);
+    Mail::Internet->new([ map { "$_\n" } split /\n/, $rfc822]);
 }
 
 sub get_header { 
@@ -13,9 +13,9 @@ sub get_header {
     $obj->head->get($header); 
 }
 
-sub get_body   { 
+sub get_body { 
     my ($class, $obj) = @_; 
-    join "\n", @{$obj->body()};
+    join "", @{$obj->body()};
 }
 
 sub set_header { 
@@ -24,9 +24,9 @@ sub set_header {
     $obj->head->replace($header, shift @data, ++$count) while @data; 
 }
 
-sub set_body   {
+sub set_body {
     my ($class, $obj, $body) = @_; 
-    $obj->body( split /\n/, $body ); 
+    $obj->body( map { "$_\n" } split /\n/, $body ); 
 }
 
 sub as_string { my ($class, $obj) = @_; $obj->as_string(); }

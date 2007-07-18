@@ -5,48 +5,49 @@ use 5.006;
 use strict;
 use warnings;
 our $VERSION = '2.133';
-use Module::Pluggable search_path => [ __PACKAGE__ ], require => 1;
+use Module::Pluggable search_path => [__PACKAGE__], require => 1;
 
-my @plugins = __PACKAGE__->plugins(); # Requires them.
+my @plugins = __PACKAGE__->plugins();                # Requires them.
 my %adapter_for = map { $_->target => $_ } @plugins;
 
 sub object {
-    my ($self) = @_;
-    return unless ref $self;
-    return $$self;
+  my ($self) = @_;
+  return unless ref $self;
+  return $$self;
 }
 
 sub new {
-    my ($class, $foreign) = @_;
+  my ($class, $foreign) = @_;
 
-    return $foreign if eval { $foreign->isa($class) };
+  return $foreign if eval { $foreign->isa($class) };
 
-    $class = ref($class) || $class;
+  $class = ref($class) || $class;
 
-    $foreign = Email::Simple->new($foreign) unless ref $foreign;
+  $foreign = Email::Simple->new($foreign) unless ref $foreign;
 
-    if (
-      $adapter_for{ref $foreign} or grep { $foreign->isa($_) } keys %adapter_for
-    ) {
-      return bless \$foreign => $class;
-    }
+  if (
+    $adapter_for{ ref $foreign }
+    or grep { $foreign->isa($_) } keys %adapter_for)
+  ) {
+    return bless \$foreign => $class;
+  }
 
-    croak "Don't know how to handle " . ref $foreign;
+  croak "Don't know how to handle " . ref $foreign;
 }
 
 sub __class_for {
-    my ($self, $foreign, $method) = @_;
+  my ($self, $foreign, $method) = @_;
 
-    my $f_class = ref($foreign) || $foreign;
+  my $f_class = ref($foreign) || $foreign;
 
-    return $adapter_for{ $f_class } if exists $adapter_for{ $f_class };
+  return $adapter_for{$f_class} if exists $adapter_for{$f_class};
 
-    require Class::ISA;
-    for my $base (Class::ISA::super_path($f_class)) {
-        return $adapter_for{ $base } if exists $adapter_for{ $base }
-    }
+  require Class::ISA;
+  for my $base (Class::ISA::super_path($f_class)) {
+    return $adapter_for{$base} if exists $adapter_for{$base};
+  }
 
-    croak "Don't know how to handle " . $f_class;
+  croak "Don't know how to handle " . $f_class;
 }
 
 sub _obj_and_args {
@@ -57,35 +58,35 @@ sub _obj_and_args {
 }
 
 for my $func (qw(get_header get_body set_header set_body as_string)) {
-    no strict 'refs';
-    *$func  = sub { 
-        my $self = shift;
-        my ($thing, @args) = $self->_obj_and_args(@_);
+  no strict 'refs';
+  *$func = sub {
+    my $self = shift;
+    my ($thing, @args) = $self->_obj_and_args(@_);
 
-        # In the event of Email::Abstract->get_body($email_abstract), convert
-        # it into an object method call.
-        $thing = $thing->object if eval { $thing->isa($self) };
+    # In the event of Email::Abstract->get_body($email_abstract), convert
+    # it into an object method call.
+    $thing = $thing->object if eval { $thing->isa($self) };
 
-        unless (ref $thing) {
-            croak "can't alter string in place" if substr($func, 0, 3) eq 'set';
-            $thing = Email::Simple->new($thing)
-        }
+    unless (ref $thing) {
+      croak "can't alter string in place" if substr($func, 0, 3) eq 'set';
+      $thing = Email::Simple->new($thing);
+    }
 
-        my $class = $self->__class_for($thing, $func);
-        return $class->$func($thing, @args);
-    };
+    my $class = $self->__class_for($thing, $func);
+    return $class->$func($thing, @args);
+  };
 }
 
 sub cast {
-    my $self = shift;
-    my ($from, $to) = $self->_obj_and_args(@_);
+  my $self = shift;
+  my ($from, $to) = $self->_obj_and_args(@_);
 
-    croak "Don't know how to construct $to objects"
-      unless $adapter_for{ $to } and $adapter_for{ $to }->can('construct');
+  croak "Don't know how to construct $to objects"
+    unless $adapter_for{$to} and $adapter_for{$to}->can('construct');
 
-    my $from_string = ref($from) ? $self->as_string($from) : $from;
+  my $from_string = ref($from) ? $self->as_string($from) : $from;
 
-    return $adapter_for{ $to }->construct($from_string);
+  return $adapter_for{$to}->construct($from_string);
 }
 
 # Preloaded methods go here.

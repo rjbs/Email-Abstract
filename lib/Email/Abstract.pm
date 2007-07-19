@@ -23,28 +23,29 @@ sub new {
 
   $foreign = Email::Simple->new($foreign) unless ref $foreign;
 
-  if (my $adapter = $class->__class_for($foreign)) {
-    return bless [ $foreign, $adapter ] => $class;
-  }
-
-  croak "Don't know how to handle " . ref $foreign;
+  my $adapter = $class->__class_for($foreign); # dies if none available
+  return bless [ $foreign, $adapter ] => $class;
 }
 
 sub __class_for {
-  my ($self, $foreign, $method) = @_;
+  my ($self, $foreign, $method, $skip_super) = @_;
+  $method ||= 'handle';
 
-  my $f_class = ref($foreign) || $foreign;
+  my $f_class = ref $foreign;
+     $f_class = $foreign unless $f_class;;
 
   return $f_class if ref $foreign and $f_class->isa($self);
 
-  return $adapter_for{$f_class} if exists $adapter_for{$f_class};
+  return $adapter_for{$f_class} if $adapter_for{$f_class};
 
-  require Class::ISA;
-  for my $base (Class::ISA::super_path($f_class)) {
-    return $adapter_for{$base} if exists $adapter_for{$base};
+  if (not $skip_super) {
+    require Class::ISA;
+    for my $base (Class::ISA::super_path($f_class)) {
+      return $adapter_for{$base} if $adapter_for{$base};
+    }
   }
 
-  croak "Don't know how to handle " . $f_class;
+  Carp::croak "Don't know how to $method $f_class";
 }
 
 sub _adapter_obj_and_args {
@@ -72,12 +73,11 @@ for my $func (qw(get_header get_body set_header set_body as_string)) {
     # I suppose we could work around this by leaving @_ intact and assigning to
     # it.  That seems ... not good. -- rjbs, 2007-07-18
     unless (ref $thing) {
-      croak "can't alter string in place" if substr($func, 0, 3) eq 'set';
+      Carp::croak "can't alter string in place" if substr($func, 0, 3) eq 'set';
       $thing = Email::Simple->new($thing);
     }
 
-    my $class = $self->__class_for($thing, $func);
-    return $class->$func($thing, @args);
+    return $adapter->$func($thing, @args);
   };
 }
 
@@ -85,9 +85,7 @@ sub cast {
   my $self = shift;
   my ($from_adapter, $from, $to) = $self->_adapter_obj_and_args(@_);
 
-  my $adapter = $self->__class_for($to);
-  croak "Don't know how to construct $to objects"
-    unless $adapter and $adapter->can('construct');
+  my $adapter = $self->__class_for($to, 'construct', 1);
 
   my $from_string = ref($from) ? $from_adapter->as_string($from) : $from;
 

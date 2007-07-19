@@ -10,8 +10,8 @@ my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
 plan tests => 2
-            + (@classes + 1) * Test::EmailAbstract->tests_per_object
-            + (@classes + 1) * Test::EmailAbstract->tests_per_class
+            + (@classes * 2 + 1) * Test::EmailAbstract->tests_per_object
+            + (@classes + 2) * Test::EmailAbstract->tests_per_class
             + 1;
 
 use_ok("Email::Abstract");
@@ -43,6 +43,13 @@ for my $class (@classes) {
     }
 
     {
+      my $simple = Email::Simple->new($message);
+      my $obj = Email::Abstract->cast($simple, $class);
+      my $email_abs = Email::Abstract->new($obj);
+      $tester->object_ok($class, $email_abs, 0);
+    }
+
+    {
       my $obj = Email::Abstract->cast($message, $class);
       $tester->class_ok($class, $obj, 0);
     }
@@ -53,6 +60,11 @@ for my $class (@classes) {
   my $email_abs = Email::Abstract->new($message);
   $tester->object_ok('plaintext',        $email_abs, 0);
   $tester->class_ok('plaintext (class)', $message,   1);
+}
+
+{
+  my $email_abs = Email::Abstract->new($message);
+  $tester->class_ok('Email::Abstract', $email_abs,   0);
 }
 
 {

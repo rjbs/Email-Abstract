@@ -10,7 +10,15 @@ sub construct {
 
 sub get_header { 
     my ($class, $obj, $header) = @_; 
-    $obj->head->get($header); 
+    my @values = $obj->head->get($header); 
+
+    # No reason to s/// lots of values if we're just going to return one.
+    $#values = 1 if not wantarray;
+
+    chomp @values;
+    s/(?:\x0d\x0a|\x0a\x0d|\x0a|\x0d)\s+/ /g for @values;
+
+    return wantarray ? @values : $values[0];
 }
 
 sub get_body { 

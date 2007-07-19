@@ -1,45 +1,56 @@
-
+#!perl -T
 use strict;
 
 use Test::More;
 
 use lib 't/lib';
-
 use Test::EmailAbstract;
 
 my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
-plan tests => 1  +  6 * @classes  +  5 * 2  +  1;
+plan tests => 2
+            + (@classes + 2) * Test::EmailAbstract->tests_per_obj
+            + 1;
 
 use_ok("Email::Abstract");
 
 my $message = do { local $/; <DATA>; };
 
+# Let's be generous and start with real CRLF, no matter what stupid thing the
+# VCS or archive tools have done to the message.
+$message =~ s/\x0a\x0d|\x0d\x0a|\x0d|\x0a/\x0d\x0a/g;
+
+my $tester = Test::EmailAbstract->new($message);
+
+is(
+  substr($message, -2, 2),
+  "\x0d\x0a",
+  "the message ends in a CRLF",
+);
+
 for my $class (@classes) {
-    SKIP: {
-        eval "require $class";
-        skip "$class can't be loaded", 6 if $@;
+  SKIP: {
+    eval "require $class";
+    skip "$class can't be loaded", $tester->tests_per_obj if $@;
 
-        my $obj = Email::Abstract->cast($message, $class);
+    my $obj = Email::Abstract->cast($message, $class);
 
-        my $email_abs = Email::Abstract->new($obj);
+    my $email_abs = Email::Abstract->new($obj);
 
-        isa_ok($email_abs, 'Email::Abstract', "wrapped $class object");
-
-        Test::EmailAbstract::wrapped_ok($class, $email_abs, 0);
-    }
+    $tester->wrapped_ok($class, $email_abs, 0);
+  }
 }
 
 {
   my $email_abs = Email::Abstract->new($message);
-  Test::EmailAbstract::wrapped_ok('plaintext', $email_abs, 0);
+  $tester->wrapped_ok('plaintext', $email_abs, 0);
 }
 
 {
   # Ensure that we can use Email::Abstract->header($abstract, 'foo')
   my $email_abs = Email::Abstract->new($message);
-  Test::EmailAbstract::class_ok('plaintext (via class)', $email_abs, 0);
+  $tester->class_ok('plaintext (via class)', $email_abs, 0);
 
   my $email_abs_new = Email::Abstract->new($email_abs);
   ok(
@@ -80,74 +91,11 @@ Joanna, All
 
 Thanks. I got the following response from Fred Tydeman.
 
-C99 Defect Report (DR) 240 covers this.  The main body of C99
-(7.12.9.7) says range error, while Annex F (F.9.6.7 and F.9.6.5)
-says "invalid" (domain error).  The result was to change 7.12.9.7
-to allow for either range or domain error.  The preferred error
-is domain error (so as match Annex F).  So, no need to change XBD.
-
-regards
-Andrew
-
 On Nov 13,  9:56am in "Re: Defect in XBD lr", Joanna Farley wrote:
 > Sun's expert in this area after some discussions with a colleague
 > outside of Sun concluded that for lround, to align with both C99 and SUS
 > changes of the following form were necessary:
-> 
-> 	+ If x is +/-Inf/NaN, a domain error occurs, and
-> 		+ errno is set to EDOM in MATH_ERRNO mode;
-> 		+ the invalid exception is raised in MATH_ERREXCEPT mode.
-> 		[to align with C99 Annex F.4]
->         
-> 	+ If x is too large to be represented as a long, a *range* error
-> 	may occur, and
-> 		+ errno *may be* set to ERANGE in MATH_ERRNO mode;
-> 		[to align with C99 7.12.9.7]
-> 		+ the invalid exception *is* raised in MATH_ERREXCEPT mode.
-> 		[to align with C99 Annex F.4]
-> 
-> They believe it is a bit awkward to have errno set to ERANGE in
-> MATH_ERRNO mode yet the invalid exception raised in MAH_ERREXCEPT mode,
-> but that just reflects an imperfect mapping of the C notion of errno to
-> the IEEE 754 notion of data conversion.
-> 
-> I'll work with our expert to draft text refecting the above to suggest
-> replacement text for lines 23678-23684 on lround page 721 of XSH6.
-> 
-> Thanks
-> 
-> Joanna
-> 
-> 
-> Andrew Josey wrote:
-> > 
-> > The text referred to is MX shaded and part of the ISO 60559 floating
-> > point option.  I do not think changing the Domain Error to a Range Error
-> > is the fix or at least not the fix for the NaN and +-Inf cases.  ISO C
-> > 99 describes the range error case if the magnitude of x is too large as a
-> > may fail. I'll ask Fred T for his thoughts on this one...
-> > regards
-> > Andrew
-> > 
-> > On Nov 12,  9:37am in "Defect in XBD lround", Erwin.Unruh@fujitsu-siemens.com wrote:
-> > >       Defect report from : Erwin Unruh , Fujitsu Siemens Computers
-> > >
-> > > (Please direct followup comments direct to austin-group-l@opengroup.org)
-> > >
-> > > @ page 0 line 0 section lround objection {0}
-> > >
-> > > Problem:
-> > >
-> > > Defect code :  1. Error
-> > >
-> > > The function lround is described in http://www.opengroup.org/onlinepubs/007904975/functions/lround.html
-> > > On Error it is specified that errno has to be set to EDOM. However, the C99 standard ISO/IEC 9899:1999 (E) specifies this as a range error, which would result in a value of ERANGE. So an implementation could not be conformant to both these standards.
-> > >
-> > > Action:
-> > >
-> > > Change the value of errno to ERANGE, if the result is not represantable. More specific: In the description of the function, replace all occurences of "domain error" with "range error" and replace "EDOM" with "ERANGE"
-> > >-- End of excerpt from Erwin.Unruh@fujitsu-siemens.com
-> > 
+> this line of text is really long and no one need worry about it but why was such a long text chosen to begin with i mean really??
 
 -----
 Andrew Josey                                The Open Group  

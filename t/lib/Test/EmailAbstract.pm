@@ -3,13 +3,9 @@ use strict;
 package Test::EmailAbstract;
 use Test::More;
 
-sub tests_per_obj { 8 }
-
 sub new {
   my ($class, $message) = @_;
-
   my $simple = Email::Simple->new($message);
-
   bless { simple => $simple } => $class;
 }
 
@@ -25,20 +21,24 @@ sub _call {
   }
 }
 
-# This is responsible for running 6 tests.
-sub _test_object {
-  my $self = shift;
-  my ($wrapped, $class, $obj, $readonly) = @_;
+sub tests_per_class  { 7 }
+sub tests_per_object { 8 }
+sub tests_per_module { $_[0]->tests_per_class + $_[0]->tests_per_object }
 
-  isa_ok($obj, 'Email::Abstract', "wrapped $class object");
+sub _do_tests {
+  my ($self, $is_wrapped, $class, $obj, $readonly) = @_;
+
+  if ($is_wrapped) {
+    isa_ok($obj, 'Email::Abstract', "wrapped $class object");
+  }
 
   is(
-    _call($wrapped, $obj, 'get_header', 'Subject'),
+    _call($is_wrapped, $obj, 'get_header', 'Subject'),
     'Re: Defect in XBD lround',
     "Subject OK with $class"
   );
 
-  eval { _call($wrapped, $obj, set_header => "Subject", "New Subject"); };
+  eval { _call($is_wrapped, $obj, set_header => "Subject", "New Subject"); };
 
   if ($readonly) {
     like($@, qr/can't alter string/, "can't alter an unwrapped string");
@@ -51,7 +51,7 @@ sub _test_object {
     q{(qmail 1679 invoked by uid 503); 13 Nov 2002 10:10:49 -0000},
   );
 
-  my @got = _call($wrapped, $obj, get_header => 'Received');
+  my @got = _call($is_wrapped, $obj, get_header => 'Received');
   s/\t/ /g for @got;
 
   is_deeply(
@@ -60,7 +60,7 @@ sub _test_object {
     "$class: received headers match up list context get_header",
   );
 
-  my $got_body    = $obj->get_body;
+  my $got_body    = _call($is_wrapped, $obj, 'get_body');
   my $simple_body = $self->simple->body;
 
   # I very much do not like doing this.  Why is it needed?
@@ -79,7 +79,7 @@ sub _test_object {
     "correct body length for $class",
   );
 
-  eval { _call($wrapped, $obj, set_body => "A completely new body"); };
+  eval { _call($is_wrapped, $obj, set_body => "A completely new body"); };
 
   if ($readonly) {
     like($@, qr/can't alter string/, "can't alter an unwrapped string");
@@ -91,14 +91,21 @@ sub _test_object {
     pass("(no test; can't check altering unalterable alteration)");
   } else {
     like(
-      _call($wrapped, $obj, 'as_string'),
+      _call($is_wrapped, $obj, 'as_string'),
       qr/Subject: New Subject.*completely new body$/ms,
       "set subject and body, restringified ok with $class"
     );
   }
 }
 
-sub class_ok   { shift->_test_object(0, @_); }
-sub wrapped_ok { shift->_test_object(1, @_); }
+sub class_ok  { shift->_do_tests(0, @_); }
+sub object_ok { shift->_do_tests(1, @_); }
+
+sub load {
+  my ($self, $class) = @_;
+  unless (eval "require $class; 1") {
+    skip "$class: unavailable", $self->tests_per_module;
+  }
+}
 
 1;

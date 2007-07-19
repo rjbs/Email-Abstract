@@ -8,8 +8,7 @@ lib/Email/Abstract/MIMEEntity.pm
 Makefile.PL
 MANIFEST			This list of files
 README
-t/abs-object.t
-t/classy.t
+t/abstractions.t
 t/lib/Test/EmailAbstract.pm
 t/pod.t
 t/pod-coverage.t

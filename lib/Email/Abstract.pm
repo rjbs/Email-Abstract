@@ -4,7 +4,7 @@ use Email::Simple;
 # use 5.006;
 # use warnings;
 use strict;
-$Email::Abstract::VERSION = '2.133_01';
+$Email::Abstract::VERSION = '2.133_02';
 use Module::Pluggable search_path => [__PACKAGE__], require => 1;
 
 my @plugins = __PACKAGE__->plugins(); # Requires them.

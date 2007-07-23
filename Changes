@@ -1,5 +1,8 @@
 Revision history for Email-Abstract.
 
+2.133_02  2007-07-??
+          fix test planning
+
 2.133_01  2007-07-??
           add test to ensure that "can't handle" exception is thrown ASAP
           remove unexplained requirement for perl 5.6

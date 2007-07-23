@@ -23,7 +23,11 @@ sub _call {
 
 sub tests_per_class  { 7 }
 sub tests_per_object { 8 }
-sub tests_per_module { $_[0]->tests_per_class + $_[0]->tests_per_object }
+sub tests_per_module {
+  + 1
+  + 2 * $_[0]->tests_per_class
+  + 1 * $_[0]->tests_per_object
+}
 
 sub _do_tests {
   my ($self, $is_wrapped, $class, $obj, $readonly) = @_;

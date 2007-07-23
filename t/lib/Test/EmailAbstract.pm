@@ -2,7 +2,14 @@ use strict;
 
 package Test::EmailAbstract;
 use Test::More;
-use Test::Output qw(stdout_is);
+
+my $test_output;
+BEGIN {
+  if (eval { require Test::Output; 1 }) {
+    Test::Output->import('stdout_is');
+    $test_output = 1;
+  }
+}
 
 sub new {
   my ($class, $message) = @_;
@@ -102,11 +109,14 @@ sub _do_tests {
     );
   }
 
-  stdout_is(  
-    sub { _call($is_wrapped, $obj, print_to => \*STDOUT); },
-    _call($is_wrapped, $obj, 'as_string'),
-    'correct results from print_to'
-  );
+  SKIP: {
+    skip "Test::Output not available", 1 unless $test_output;
+    stdout_is(  
+      sub { _call($is_wrapped, $obj, print_to => \*STDOUT); },
+      _call($is_wrapped, $obj, 'as_string'),
+      'correct results from print_to'
+    );
+  }
 }
 
 sub class_ok  { shift->_do_tests(0, @_); }

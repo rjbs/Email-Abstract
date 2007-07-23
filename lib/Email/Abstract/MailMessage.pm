@@ -35,6 +35,11 @@ sub as_string {
     $obj->string;
 }
 
+sub print_to {
+  my ($class, $obj, $fh) = @_;
+  $obj->print($fh);
+}
+
 1;
 
 =head1 NAME

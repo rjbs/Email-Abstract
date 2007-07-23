@@ -1,9 +1,10 @@
+use strict;
+
 package Email::Abstract;
+
 use Carp;
 use Email::Simple;
-# use 5.006;
-# use warnings;
-use strict;
+use IO::Handle;
 $Email::Abstract::VERSION = '2.133_02';
 use Module::Pluggable search_path => [__PACKAGE__], require => 1;
 
@@ -60,7 +61,7 @@ sub _adapter_obj_and_args {
   }
 }
 
-for my $func (qw(get_header get_body set_header set_body as_string)) {
+for my $func (qw(get_header get_body set_header set_body as_string print_to)) {
   no strict 'refs';
   *$func = sub {
     my $self = shift;

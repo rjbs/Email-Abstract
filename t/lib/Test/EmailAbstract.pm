@@ -2,6 +2,7 @@ use strict;
 
 package Test::EmailAbstract;
 use Test::More;
+use Test::Output qw(stdout_is);
 
 sub new {
   my ($class, $message) = @_;
@@ -21,8 +22,8 @@ sub _call {
   }
 }
 
-sub tests_per_class  { 7 }
-sub tests_per_object { 8 }
+sub tests_per_class  { 8 }
+sub tests_per_object { 9 }
 sub tests_per_module {
   + 1
   + 2 * $_[0]->tests_per_class
@@ -100,6 +101,12 @@ sub _do_tests {
       "set subject and body, restringified ok with $class"
     );
   }
+
+  stdout_is(  
+    sub { _call($is_wrapped, $obj, print_to => \*STDOUT); },
+    _call($is_wrapped, $obj, 'as_string'),
+    'correct results from print_to'
+  );
 }
 
 sub class_ok  { shift->_do_tests(0, @_); }

@@ -107,7 +107,9 @@ sub object_ok { shift->_do_tests(1, @_); }
 
 sub load {
   my ($self, $class) = @_;
-  unless (eval "require $class; 1") {
+  if (eval "require $class; 1") {
+    diag "testing $class with " . $class->VERSION;
+  } else {
     skip "$class: unavailable", $self->tests_per_module;
   }
 }

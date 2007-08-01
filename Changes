@@ -1,5 +1,8 @@
 Revision history for Email-Abstract.
 
+2.133_03  2007-08-??
+          diagnostics in output to indicate what version of a module we used
+
 2.133_02  2007-07-??
           fix test planning
 

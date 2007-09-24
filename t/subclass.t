@@ -1,6 +1,7 @@
 {
   package MyMail;
-  use base "Email::Simple";
+  use Email::Simple;
+  BEGIN{ @MyMail::ISA = 'Email::Simple';
 }
 
 package main;
@@ -16,7 +17,10 @@ like($y->as_string, qr/Farley's/, "Round trip subclass via object wrapped");
 
 SKIP: {
   skip "this test requires MIME::Entity", 1
-    unless eval { require MIME::Entity; 1 };
+    unless eval {
+      require Email::Abstract::MIMEEntity;
+      Email::Abstract::MIMEEntity->is_available
+    };
   { # should always adapt as if it's MIME::Entity, the nearest class
     package MultiHopMail;
     require MIME::Entity;

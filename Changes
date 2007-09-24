@@ -1,5 +1,14 @@
 Revision history for Email-Abstract.
 
+2.133_04  2007-09-24
+          [ENHANCEMENTS]
+          created Email::Abstract::Plugin base class; please use it!
+          added is_available method to plugins
+
+          [BUG FIXES]
+          is_available in the Mail::Internet adapter should solve header
+            folding issues (by preventing you from using it when it can't work)
+
 2.133_03  2007-08-??
           diagnostics in output to indicate what version of a module we used
 

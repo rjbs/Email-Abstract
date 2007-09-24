@@ -5,6 +5,7 @@ lib/Email/Abstract/EmailSimple.pm
 lib/Email/Abstract/MailInternet.pm
 lib/Email/Abstract/MailMessage.pm
 lib/Email/Abstract/MIMEEntity.pm
+lib/Email/Abstract/Plugin.pm
 Makefile.PL
 MANIFEST			This list of files
 README

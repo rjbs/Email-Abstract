@@ -1,5 +1,10 @@
-package Email::Abstract::EmailSimple;
 use strict;
+
+package Email::Abstract::EmailSimple;
+
+use Email::Abstract::Plugin;
+BEGIN { @Email::Abstract::EmailSimple::ISA = 'Email::Abstract::Plugin' };
+
 sub target { "Email::Simple" }
 
 sub construct {

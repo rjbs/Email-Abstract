@@ -1,11 +1,24 @@
-package Email::Abstract::MailInternet;
 use strict;
+package Email::Abstract::MailInternet;
+
+use Email::Abstract::Plugin;
+BEGIN { @Email::Abstract::MailInternet::ISA = 'Email::Abstract::Plugin' };
+
 sub target { "Mail::Internet" }
+
+# We need 1.77 because otherwise headers unfold badly.
+my $is_avail;
+sub is_available {
+  return $is_avail if defined $is_avail;
+  require Mail::Internet;
+  eval { Mail::Internet->VERSION(1.77) };
+  return $is_avail = $@ ? 0 : 1;
+}
 
 sub construct {
     require Mail::Internet;
     my ($class, $rfc822) = @_;
-    Mail::Internet->new([ map { "$_\n" } split /\n/, $rfc822]);
+    Mail::Internet->new([ map { "$_\x0d\x0a" } split /\x0d\x0a/, $rfc822]);
 }
 
 sub get_header { 

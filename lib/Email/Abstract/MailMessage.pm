@@ -1,5 +1,8 @@
-package Email::Abstract::MailMessage;
 use strict;
+package Email::Abstract::MailMessage;
+
+use Email::Abstract::Plugin;
+BEGIN { @Email::Abstract::MailMessage::ISA = 'Email::Abstract::Plugin' };
 
 sub target {"Mail::Message" }
 

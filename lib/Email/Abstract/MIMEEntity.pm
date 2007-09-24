@@ -1,6 +1,9 @@
-package Email::Abstract::MIMEEntity;
 use strict;
-use base 'Email::Abstract::MailInternet';
+package Email::Abstract::MIMEEntity;
+
+use Email::Abstract::Plugin;
+BEGIN { @Email::Abstract::MIMEEntity::ISA = 'Email::Abstract::MailInternet' };
+
 sub target { "MIME::Entity" }
 
 sub construct {

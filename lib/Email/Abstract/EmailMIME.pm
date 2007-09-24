@@ -1,6 +1,10 @@
-package Email::Abstract::EmailMIME;
 use strict;
-use base 'Email::Abstract::EmailSimple';
+
+package Email::Abstract::EmailMIME;
+
+use Email::Abstract::EmailSimple;
+BEGIN { @Email::Abstract::EmailMIME::ISA = 'Email::Abstract::EmailSimple' };
+
 sub target { "Email::MIME" }
 
 sub construct {

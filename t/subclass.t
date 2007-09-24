@@ -1,7 +1,7 @@
 {
   package MyMail;
   use Email::Simple;
-  BEGIN{ @MyMail::ISA = 'Email::Simple';
+  BEGIN { @MyMail::ISA = 'Email::Simple'; }
 }
 
 package main;

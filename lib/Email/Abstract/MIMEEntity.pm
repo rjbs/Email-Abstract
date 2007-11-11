@@ -4,6 +4,13 @@ package Email::Abstract::MIMEEntity;
 use Email::Abstract::Plugin;
 BEGIN { @Email::Abstract::MIMEEntity::ISA = 'Email::Abstract::MailInternet' };
 
+my $is_avail;
+sub is_available {
+  return $is_avail if defined $is_avail;
+  eval { require MIME::Entity; 1 };
+  return $is_avail = $@ ? 0 : 1;
+}
+
 sub target { "MIME::Entity" }
 
 sub construct {

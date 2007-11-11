@@ -19,7 +19,7 @@ SKIP: {
   skip "this test requires MIME::Entity", 1
     unless eval {
       require Email::Abstract::MIMEEntity;
-      Email::Abstract::MIMEEntity->is_available
+      Email::Abstract::MIMEEntity->is_available;
     };
   { # should always adapt as if it's MIME::Entity, the nearest class
     package MultiHopMail;

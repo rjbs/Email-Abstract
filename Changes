@@ -1,5 +1,9 @@
 Revision history for Email-Abstract.
 
+2.133_05  2007-11-11
+          [BUG FIXES]
+          added is_available method to MIMEEntity plugin
+
 2.133_04  2007-09-24
           [ENHANCEMENTS]
           created Email::Abstract::Plugin base class; please use it!

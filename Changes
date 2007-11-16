@@ -1,5 +1,8 @@
 Revision history for Email-Abstract.
 
+2.134     2007-11-16
+          (no code changes from previous dev release)
+
 2.133_05  2007-11-11
           [BUG FIXES]
           added is_available method to MIMEEntity plugin

@@ -4,7 +4,7 @@ use Email::Simple;
 # use 5.006;
 # use warnings;
 use strict;
-$Email::Abstract::VERSION = '2.133_05';
+$Email::Abstract::VERSION = '2.134';
 use Module::Pluggable
   search_path => [__PACKAGE__],
   except      => 'Email::Abstract::Plugin',

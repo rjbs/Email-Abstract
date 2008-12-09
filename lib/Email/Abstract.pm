@@ -4,7 +4,7 @@ use Email::Simple;
 # use 5.006;
 # use warnings;
 use strict;
-$Email::Abstract::VERSION = '2.134';
+$Email::Abstract::VERSION = '3.000';
 use Module::Pluggable
   search_path => [__PACKAGE__],
   except      => 'Email::Abstract::Plugin',
@@ -30,7 +30,8 @@ sub new {
 
   return $foreign if eval { $foreign->isa($class) };
 
-  $foreign = Email::Simple->new($foreign) unless ref $foreign;
+  $foreign = Email::Simple->new($foreign)
+    unless Scalar::Util::blessed($foreign);
 
   my $adapter = $class->__class_for($foreign); # dies if none available
   return bless [ $foreign, $adapter ] => $class;
@@ -41,7 +42,7 @@ sub __class_for {
   $method ||= 'handle';
 
   my $f_class = ref $foreign;
-     $f_class = $foreign unless $f_class;;
+     $f_class = $foreign unless $f_class;
 
   return $f_class if ref $foreign and $f_class->isa($self);
 
@@ -64,7 +65,9 @@ sub _adapter_obj_and_args {
     return ($self->[1], $thing, @_);
   } else {
     my $thing   = shift;
-    my $adapter = $self->__class_for(ref $thing ? $thing : 'Email::Simple');
+    my $adapter = $self->__class_for(
+      Scalar::Util::blessed($thing) ? $thing : 'Email::Simple'
+    );
     return ($adapter, $thing, @_);
   }
 }
@@ -81,9 +84,11 @@ for my $func (qw(get_header get_body set_header set_body as_string)) {
 
     # I suppose we could work around this by leaving @_ intact and assigning to
     # it.  That seems ... not good. -- rjbs, 2007-07-18
-    unless (ref $thing) {
+    unless (Scalar::Util::blessed($thing)) {
       Carp::croak "can't alter string in place" if substr($func, 0, 3) eq 'set';
-      $thing = Email::Simple->new($thing);
+      $thing = Email::Simple->new(
+        ref $thing ? \do{my$str=$$thing} : $thing
+      );
     }
 
     return $adapter->$func($thing, @args);

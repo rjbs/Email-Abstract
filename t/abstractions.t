@@ -10,9 +10,9 @@ my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
 plan tests => 2
-            + (@classes * 2 + 1) * Test::EmailAbstract->tests_per_object
-            + (@classes + 2) * Test::EmailAbstract->tests_per_class
-            + 1;
+            + (@classes * 2 + 2) * Test::EmailAbstract->tests_per_object
+            + (@classes + 4) * Test::EmailAbstract->tests_per_class
+            + 2;
 
 use_ok("Email::Abstract");
 
@@ -56,24 +56,31 @@ for my $class (@classes) {
   }
 }
 
-{
-  my $email_abs = Email::Abstract->new($message);
-  $tester->object_ok('plaintext',        $email_abs, 0);
-  $tester->class_ok('plaintext (class)', $message,   1);
-}
+for my $ref (0..1) {
+  my $get_msg = $ref
+              ? sub { my $copy = $message; \$copy }
+              : sub { $message };
+  my $desc = 'plaintext' . ($ref ? ' (ref)' : '');
 
-{
-  my $email_abs = Email::Abstract->new($message);
-  $tester->class_ok('Email::Abstract', $email_abs,   0);
-}
+  {
+    my $email_abs = Email::Abstract->new($get_msg->());
+    $tester->object_ok($desc,          $email_abs,   0);
+    $tester->class_ok("$desc (class)", $get_msg->(), 1);
+  }
 
-{
-  # Ensure that we can use Email::Abstract->header($abstract, 'foo')
-  my $email_abs = Email::Abstract->new($message);
+  {
+    my $email_abs = Email::Abstract->new($get_msg->());
+    $tester->class_ok('Email::Abstract', $email_abs,   0);
+  }
 
-  my $email_abs_new = Email::Abstract->new($email_abs);
-  ok(
-    $email_abs == $email_abs_new,
-    "trying to wrap a wrapper returns the wrapper; it doesn't re-wrap",
-  );
+  {
+    # Ensure that we can use Email::Abstract->header($abstract, 'foo')
+    my $email_abs = Email::Abstract->new($get_msg->());
+
+    my $email_abs_new = Email::Abstract->new($email_abs);
+    ok(
+      $email_abs == $email_abs_new,
+      "trying to wrap a wrapper returns the wrapper; it doesn't re-wrap",
+    );
+  }
 }

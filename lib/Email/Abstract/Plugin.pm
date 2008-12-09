@@ -2,7 +2,7 @@ use strict;
 
 package Email::Abstract::Plugin;
 
-$Email::Abstract::Plugin::VERSION = '2.134';
+$Email::Abstract::Plugin::VERSION = '3.000';
 
 =head1 NAME
 

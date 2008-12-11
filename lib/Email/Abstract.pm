@@ -1,14 +1,16 @@
+require 5.006;
+use warnings;
+use strict;
 package Email::Abstract;
 use Carp;
 use Email::Simple;
-# use 5.006;
-# use warnings;
-use strict;
-$Email::Abstract::VERSION = '3.000';
+$Email::Abstract::VERSION = '3.001';
 use Module::Pluggable
   search_path => [__PACKAGE__],
   except      => 'Email::Abstract::Plugin',
   require     => 1;
+
+use Scalar::Util ();
 
 my @plugins = __PACKAGE__->plugins(); # Requires them.
 my %adapter_for =

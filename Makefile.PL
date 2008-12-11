@@ -1,4 +1,6 @@
+require 5.006;
 use strict;
+use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
@@ -10,5 +12,6 @@ WriteMakefile(
     'Email::Simple'     => '1.91', # avoid undef body
     'Module::Pluggable' => '1.5',
     'Test::More'        => '0.47',
+    'Scalar::Util'      => 0,      # minimum unknown
   },
 );

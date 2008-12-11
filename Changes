@@ -1,5 +1,8 @@
 Revision history for Email-Abstract.
 
+3.001     2008-12-11
+          declare our prereq on Scalar::Util
+
 3.000     2008-12-09
           accept scalar references for more efficient msg-from-string
 

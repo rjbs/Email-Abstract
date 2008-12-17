@@ -3,6 +3,14 @@ use strict;
 package Test::EmailAbstract;
 use Test::More;
 
+my $test_output;
+BEGIN {
+  if (eval { require Test::Output; 1 }) {
+    Test::Output->import('stdout_is');
+    $test_output = 1;
+  }
+}
+
 sub new {
   my ($class, $message) = @_;
   my $simple = Email::Simple->new($message);
@@ -21,8 +29,8 @@ sub _call {
   }
 }
 
-sub tests_per_class  { 7 }
-sub tests_per_object { 8 }
+sub tests_per_class  { 8 }
+sub tests_per_object { 9 }
 sub tests_per_module {
   + 1
   + 2 * $_[0]->tests_per_class
@@ -98,6 +106,15 @@ sub _do_tests {
       _call($is_wrapped, $obj, 'as_string'),
       qr/Subject: New Subject.*completely new body$/ms,
       "set subject and body, restringified ok with $class"
+    );
+  }
+
+  SKIP: {
+    skip "Test::Output not available", 1 unless $test_output;
+    stdout_is(  
+      sub { _call($is_wrapped, $obj, print_to => \*STDOUT); },
+      _call($is_wrapped, $obj, 'as_string'),
+      'correct results from print_to'
     );
   }
 }

@@ -38,6 +38,16 @@ sub as_string {
     $obj->as_string();
 }
 
+sub print_to {
+  my ($class, $obj, $fh) = @_;
+
+  if (eval { $obj->can('stream_to') }) {
+    $obj->stream_to($fh);
+  } else {
+    $fh->print($obj->as_string);
+  }
+}
+
 1;
 
 =head1 NAME

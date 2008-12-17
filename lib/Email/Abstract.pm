@@ -1,7 +1,9 @@
 require 5.006;
 use warnings;
 use strict;
+
 package Email::Abstract;
+
 use Carp;
 use Email::Simple;
 $Email::Abstract::VERSION = '3.001';
@@ -11,6 +13,7 @@ use Module::Pluggable
   require     => 1;
 
 use Scalar::Util ();
+use IO::Handle;
 
 my @plugins = __PACKAGE__->plugins(); # Requires them.
 my %adapter_for =
@@ -74,7 +77,7 @@ sub _adapter_obj_and_args {
   }
 }
 
-for my $func (qw(get_header get_body set_header set_body as_string)) {
+for my $func (qw(get_header get_body set_header set_body as_string print_to)) {
   no strict 'refs';
   *$func = sub {
     my $self = shift;

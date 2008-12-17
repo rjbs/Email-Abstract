@@ -52,7 +52,7 @@ sub set_body {
 
 sub as_string { my ($class, $obj) = @_; $obj->as_string(); }
 
-sub print_to {
+sub stream_to {
   my ($class, $obj, $fh) = @_;
 
   $obj->print($fh);

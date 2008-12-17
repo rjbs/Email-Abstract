@@ -38,7 +38,7 @@ sub as_string {
     $obj->string;
 }
 
-sub print_to {
+sub stream_to {
   my ($class, $obj, $fh) = @_;
   $obj->print($fh);
 }

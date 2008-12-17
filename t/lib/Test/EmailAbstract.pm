@@ -112,9 +112,9 @@ sub _do_tests {
   SKIP: {
     skip "Test::Output not available", 1 unless $test_output;
     stdout_is(  
-      sub { _call($is_wrapped, $obj, print_to => \*STDOUT); },
+      sub { _call($is_wrapped, $obj, stream_to => \*STDOUT); },
       _call($is_wrapped, $obj, 'as_string'),
-      'correct results from print_to'
+      'correct results from stream_to'
     );
   }
 }

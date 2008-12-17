@@ -77,7 +77,7 @@ sub _adapter_obj_and_args {
   }
 }
 
-for my $func (qw(get_header get_body set_header set_body as_string print_to)) {
+for my $func (qw(get_header get_body set_header set_body as_string stream_to)) {
   no strict 'refs';
   *$func = sub {
     my $self = shift;

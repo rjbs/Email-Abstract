@@ -1,8 +1,7 @@
 use strict;
-package Email::Abstract::MailInternet;
-
-use Email::Abstract::Plugin;
-BEGIN { @Email::Abstract::MailInternet::ISA = 'Email::Abstract::Plugin' };
+use warnings;
+package Email::Abstract::Adapter::Mail::Internet;
+use base 'Email::Abstract::Adapter';
 
 sub target { "Mail::Internet" }
 
@@ -62,7 +61,7 @@ sub stream_to {
 
 =head1 NAME
 
-Email::Abstract::MailInternet - Email::Abstract wrapper for Mail::Internet
+Email::Abstract::Adapter::Mail::Internet - adapter for Mail::Internet
 
 =head1 DESCRIPTION
 

@@ -1,9 +1,8 @@
 use strict;
+use warnings;
 
-package Email::Abstract::EmailMIME;
-
-use Email::Abstract::EmailSimple;
-BEGIN { @Email::Abstract::EmailMIME::ISA = 'Email::Abstract::EmailSimple' };
+package Email::Abstract::Adapter::Email::MIME;
+use base 'Email::Abstract::Adapter::Email::Simple';
 
 sub target { "Email::MIME" }
 
@@ -17,7 +16,7 @@ sub construct {
 
 =head1 NAME
 
-Email::Abstract::EmailMIME - Email::Abstract wrapper for Email::MIME
+Email::Abstract::Adapter::Email::MIME - adapter for Email::MIME
 
 =head1 DESCRIPTION
 

@@ -1,9 +1,7 @@
 use strict;
-
-package Email::Abstract::EmailSimple;
-
-use Email::Abstract::Plugin;
-BEGIN { @Email::Abstract::EmailSimple::ISA = 'Email::Abstract::Plugin' };
+use warnings;
+package Email::Abstract::Adapter::Email::Simple;
+use base 'Email::Abstract::Adapter';
 
 sub target { "Email::Simple" }
 
@@ -52,7 +50,7 @@ sub stream_to {
 
 =head1 NAME
 
-Email::Abstract::EmailSimple - Email::Abstract wrapper for Email::Simple
+Email::Abstract::Adapter::Email::Simple - adapter for Email::Simple
 
 =head1 DESCRIPTION
 

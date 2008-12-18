@@ -1,8 +1,7 @@
 use strict;
-package Email::Abstract::MIMEEntity;
-
-use Email::Abstract::Plugin;
-BEGIN { @Email::Abstract::MIMEEntity::ISA = 'Email::Abstract::MailInternet' };
+use warnings;
+package Email::Abstract::Adapter::MIMEEntity;
+use base 'Email::Abstract::Adapter::Mail::Internet';
 
 my $is_avail;
 sub is_available {
@@ -35,7 +34,7 @@ sub set_body {
 
 =head1 NAME
 
-Email::Abstract::MIMEEntity - Email::Abstract wrapper for MIME::Entity
+Email::Abstract::Adapter::MIME::Entity - adapter for MIME::Entity
 
 =head1 DESCRIPTION
 

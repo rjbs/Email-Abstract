@@ -3,13 +3,13 @@ use warnings;
 use strict;
 
 package Email::Abstract;
+our $VERSION = '4.000';
 
 use Carp;
 use Email::Simple;
-$Email::Abstract::VERSION = '3.001';
 use Module::Pluggable
-  search_path => [__PACKAGE__],
-  except      => 'Email::Abstract::Plugin',
+  search_path => [ qw(Email::Abstract::Wrapper), __PACKAGE__ ],
+  except      => [ map { "Email::Abstract::$_" } qw(Plugin Wrapper) ],
   require     => 1;
 
 use Scalar::Util ();

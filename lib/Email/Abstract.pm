@@ -8,8 +8,8 @@ our $VERSION = '4.000';
 use Carp;
 use Email::Simple;
 use Module::Pluggable
-  search_path => [ qw(Email::Abstract::Wrapper), __PACKAGE__ ],
-  except      => [ map { "Email::Abstract::$_" } qw(Plugin Wrapper) ],
+  search_path => [ qw(Email::Abstract::Adapter), __PACKAGE__ ],
+  except      => [ map { "Email::Abstract::$_" } qw(Plugin Adapter) ],
   require     => 1;
 
 use Scalar::Util ();

@@ -1,6 +1,7 @@
 #!perl -T
 use strict;
 
+use Email::Abstract;
 use Test::More;
 
 use lib 't/lib';
@@ -9,12 +10,11 @@ use Test::EmailAbstract;
 my @classes
   = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
-plan tests => 2
+plan tests => 1
             + (@classes * 2 + 2) * Test::EmailAbstract->tests_per_object
             + (@classes + 4) * Test::EmailAbstract->tests_per_class
             + 2;
 
-use_ok("Email::Abstract");
 
 open FILE, '<t/example.msg';
 my $message = do { local $/; <FILE>; };

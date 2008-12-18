@@ -20,4 +20,6 @@ registered when Email::Abstract is loaded.
 
 sub is_available { 1 }
 
+sub stream_to { $_[1]->print($_[0]->as_string) }
+
 1;

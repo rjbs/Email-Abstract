@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-package Email::Abstract::Adapter::MIMEEntity;
+package Email::Abstract::Adapter::MIME::Entity;
 use base 'Email::Abstract::Adapter::Mail::Internet';
 
 my $is_avail;

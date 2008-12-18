@@ -15,14 +15,28 @@ use Module::Pluggable
 use Scalar::Util ();
 use IO::Handle;
 
-my @plugins = __PACKAGE__->plugins(); # Requires them.
-my %adapter_for =
-  map  { $_->target => $_ }
-  grep {
-    my $avail = eval { $_->is_available };
-    $@ ? ($@ =~ /Can't locate object method "is_available"/) : $avail;
+my %adapter_for;
+
+BEGIN {
+  my @plugins = __PACKAGE__->plugins(); # Requires them.
+  PLUGIN: for my $plugin (@plugins) {
+    my $avail = eval { $plugin->is_available };
+    next unless $@ ? ($@ =~ /Can't locate \w+ method "is_available"/) : $avail;
+
+    my $target = $plugin->target;
+    if (my $existing = $adapter_for{ $target }) {
+      next PLUGIN
+        if  $existing->isa('Email::Abstract::Adapter')
+        and $plugin->isa('Email::Abstract::Plugin');
+
+      warn "multiple adapters found for $target: $existing, $plugin; keeping $existing";
+    }
+
+    $adapter_for{ $target } = $plugin;
   }
-  @plugins;
+}
+
+use Data::Dumper; warn Dumper(\%adapter_for);
 
 sub object {
   my ($self) = @_;

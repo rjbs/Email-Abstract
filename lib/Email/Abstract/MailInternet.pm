@@ -24,6 +24,7 @@ sub construct {
 sub get_header { 
     my ($class, $obj, $header) = @_; 
     my @values = $obj->head->get($header); 
+    return unless @values;
 
     # No reason to s/// lots of values if we're just going to return one.
     $#values = 0 if not wantarray;

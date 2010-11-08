@@ -1,5 +1,8 @@
 Revision history for Email-Abstract.
 
+3.003     2010-11-08
+          replace Class::ISA with mro (MRO::Compat)
+
 3.002     2010-06-11
           avoid a warning in MailInternet with zero headers found
 

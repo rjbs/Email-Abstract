@@ -4,7 +4,8 @@ use strict;
 package Email::Abstract;
 use Carp;
 use Email::Simple;
-$Email::Abstract::VERSION = '3.002';
+use MRO::Compat;
+$Email::Abstract::VERSION = '3.003';
 use Module::Pluggable
   search_path => [__PACKAGE__],
   except      => 'Email::Abstract::Plugin',
@@ -51,8 +52,9 @@ sub __class_for {
   return $adapter_for{$f_class} if $adapter_for{$f_class};
 
   if (not $skip_super) {
-    require Class::ISA;
-    for my $base (Class::ISA::super_path($f_class)) {
+    my @bases = @{ mro::get_linear_isa($f_class) };
+    shift @bases;
+    for my $base (@bases) {
       return $adapter_for{$base} if $adapter_for{$base};
     }
   }

@@ -5,7 +5,7 @@ package Email::Abstract;
 use Carp;
 use Email::Simple;
 use MRO::Compat;
-$Email::Abstract::VERSION = '3.003';
+$Email::Abstract::VERSION = '3.004';
 use Module::Pluggable
   search_path => [__PACKAGE__],
   except      => 'Email::Abstract::Plugin',

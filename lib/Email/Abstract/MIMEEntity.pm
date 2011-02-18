@@ -7,7 +7,7 @@ BEGIN { @Email::Abstract::MIMEEntity::ISA = 'Email::Abstract::MailInternet' };
 my $is_avail;
 sub is_available {
   return $is_avail if defined $is_avail;
-  eval { require MIME::Entity; 1 };
+  eval { require MIME::Entity; MIME::Entity->VERSION(5.501); 1 };
   return $is_avail = $@ ? 0 : 1;
 }
 
@@ -15,7 +15,7 @@ sub target { "MIME::Entity" }
 
 sub construct {
     require MIME::Parser;
-    my $parser = new MIME::Parser;
+    my $parser = MIME::Parser->new;
     $parser->output_to_core(1);
     my ($class, $rfc822) = @_;
     $parser->parse_data($rfc822);

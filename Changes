@@ -1,5 +1,13 @@
 Revision history for Email-Abstract.
 
+3.004     2011-02-18
+
+          If present, MIME::Entity must be v5.501; v5.500 had a regression (or
+          a bug fix, depending how you look at it) that broke header-reading.
+          While technically older versions that are not 5.500 would work, it is
+          much simpler to just require the newest version, rather than to
+          support a version range with a hole in it.
+
 3.003     2010-11-08
           replace Class::ISA with mro (MRO::Compat)
 

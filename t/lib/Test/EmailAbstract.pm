@@ -47,7 +47,7 @@ sub _do_tests {
   if ($readonly) {
     like($@, qr/can't alter string/, "can't alter an unwrapped string");
   } else {
-    ok(!$@, "no exception on altering object via Email::Abstract");
+    is($@, '', "no exception on altering object via Email::Abstract");
   }
 
   my @receiveds = (
@@ -88,7 +88,7 @@ sub _do_tests {
   if ($readonly) {
     like($@, qr/can't alter string/, "can't alter an unwrapped string");
   } else {
-    ok(!$@, "no exception on altering object via Email::Abstract");
+    is($@, '', "no exception on altering object via Email::Abstract");
   }
 
   if ($readonly) {

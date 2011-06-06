@@ -147,7 +147,7 @@ scratch, C<Email::Abstract> can be used to perform certain simple operations on
 an object regardless of its underlying representation.
 
 C<Email::Abstract> currently supports C<Mail::Internet>, C<MIME::Entity>,
-C<Mail::Message>, C<Email::Simple> and C<Email::MIME>.  Other representations
+C<Mail::Message>, C<Email::Simple>, C<Email::MIME>, and C<Courriel>.  Other representations
 are encouraged to create their own C<Email::Abstract::*> class by copying
 C<Email::Abstract::EmailSimple>.  All modules installed under the
 C<Email::Abstract> hierarchy will be automatically picked up and used.

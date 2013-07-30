@@ -1,6 +1,8 @@
 Revision history for Email-Abstract.
 
 {{$NEXT}}
+
+3.005     2013-07-30 09:57:36 America/New_York
           repackage, update bug tracker, etc.
 
           provide raw body on multipart Email::MIME messages (thanks,

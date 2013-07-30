@@ -1,4 +1,4 @@
-#!perl -T
+#!perl
 use strict;
 
 use Test::More;
@@ -12,13 +12,13 @@ my @classes
 plan tests => 2
             + (@classes * 2 + 2) * Test::EmailAbstract->tests_per_object
             + (@classes + 4) * Test::EmailAbstract->tests_per_class
-            + 2;
+            + 3;
 
 use_ok("Email::Abstract");
 
-open FILE, '<t/example.msg';
-my $message = do { local $/; <FILE>; };
-close FILE;
+open my $fh, '<', 't/example.msg' or die "can't open t/example.msg: $!";
+my $message = do { local $/; <$fh>; };
+close $fh or die "error closing t/example.msg after read: $!";
 
 # Let's be generous and start with real CRLF, no matter what stupid thing the
 # VCS or archive tools have done to the message.
@@ -81,6 +81,32 @@ for my $ref (0..1) {
     ok(
       $email_abs == $email_abs_new,
       "trying to wrap a wrapper returns the wrapper; it doesn't re-wrap",
+    );
+  }
+}
+
+{
+  SKIP: {
+    $tester->load('MIME::Entity'); # cheating!!! -- rjbs, 2013-07-30
+
+    open my $fh, '<', 't/multipart.msg' or die "can't open t/multipart.msg: $!";
+    my $message = do { local $/; <$fh>; };
+    close $fh or die "error closing t/multipart.msg after read: $!";
+
+    # Let's be generous and start with real CRLF, no matter what stupid thing the
+    # VCS or archive tools have done to the message.
+    $message =~ s/\x0a\x0d|\x0d\x0a|\x0d|\x0a/\x0d\x0a/g;
+
+    my $parser = MIME::Parser->new;
+    $parser->output_to_core(1);
+    my $entity = $parser->parse_data($message);
+
+    my $abstract = Email::Abstract->new($entity);
+
+    like(
+      $abstract->get_body,
+      qr/us-ascii/,
+      "minimal body test on MIME::Entity",
     );
   }
 }

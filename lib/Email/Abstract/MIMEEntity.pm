@@ -21,7 +21,11 @@ sub construct {
     $parser->parse_data($rfc822);
 }
 
-sub get_body { pop->bodyhandle->as_string }
+sub get_body {
+  my ($self, $obj) = @_;
+  my $handle = $obj->bodyhandle;
+  return $handle ? $handle->as_string : join('', @{ $obj->body });
+}
 
 sub set_body {
     my ($class, $obj, $body) = @_;

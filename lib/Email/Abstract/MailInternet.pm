@@ -1,5 +1,6 @@
 use strict;
 package Email::Abstract::MailInternet;
+# ABSTRACT: Email::Abstract wrapper for Mail::Internet
 
 use Email::Abstract::Plugin;
 BEGIN { @Email::Abstract::MailInternet::ISA = 'Email::Abstract::Plugin' };
@@ -21,9 +22,9 @@ sub construct {
     Mail::Internet->new([ map { "$_\x0d\x0a" } split /\x0d\x0a/, $rfc822]);
 }
 
-sub get_header { 
-    my ($class, $obj, $header) = @_; 
-    my @values = $obj->head->get($header); 
+sub get_header {
+    my ($class, $obj, $header) = @_;
+    my @values = $obj->head->get($header);
     return unless @values;
 
     # No reason to s/// lots of values if we're just going to return one.
@@ -35,29 +36,25 @@ sub get_header {
     return wantarray ? @values : $values[0];
 }
 
-sub get_body { 
-    my ($class, $obj) = @_; 
+sub get_body {
+    my ($class, $obj) = @_;
     join "", @{$obj->body()};
 }
 
-sub set_header { 
-    my ($class, $obj, $header, @data) = @_; 
+sub set_header {
+    my ($class, $obj, $header, @data) = @_;
     my $count = 0;
-    $obj->head->replace($header, shift @data, ++$count) while @data; 
+    $obj->head->replace($header, shift @data, ++$count) while @data;
 }
 
 sub set_body {
-    my ($class, $obj, $body) = @_; 
-    $obj->body( map { "$_\n" } split /\n/, $body ); 
+    my ($class, $obj, $body) = @_;
+    $obj->body( map { "$_\n" } split /\n/, $body );
 }
 
 sub as_string { my ($class, $obj) = @_; $obj->as_string(); }
 
 1;
-
-=head1 NAME
-
-Email::Abstract::MailInternet - Email::Abstract wrapper for Mail::Internet
 
 =head1 DESCRIPTION
 

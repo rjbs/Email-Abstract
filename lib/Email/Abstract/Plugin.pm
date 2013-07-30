@@ -1,16 +1,9 @@
 use strict;
-
+use warnings;
 package Email::Abstract::Plugin;
+# ABSTRACT: a base class for Email::Abstract plugins
 
-$Email::Abstract::Plugin::VERSION = '3.004';
-
-=head1 NAME
-
-Email::Abstract::Plugin - a base class for Email::Abstract plugins
-
-=head1 METHODS
-
-=head2 is_available
+=method is_available
 
 This method returns true if the plugin should be considered available for
 registration.  Plugins that return false from this method will not be

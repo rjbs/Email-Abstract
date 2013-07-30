@@ -1,6 +1,7 @@
 use strict;
-
+use warnings;
 package Email::Abstract::EmailMIME;
+# ABSTRACT: Email::Abstract wrapper for Email::MIME
 
 use Email::Abstract::EmailSimple;
 BEGIN { @Email::Abstract::EmailMIME::ISA = 'Email::Abstract::EmailSimple' };
@@ -14,10 +15,6 @@ sub construct {
 }
 
 1;
-
-=head1 NAME
-
-Email::Abstract::EmailMIME - Email::Abstract wrapper for Email::MIME
 
 =head1 DESCRIPTION
 

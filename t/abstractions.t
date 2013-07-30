@@ -7,7 +7,7 @@ use lib 't/lib';
 use Test::EmailAbstract;
 
 my @classes
-  = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message Courriel);
+  = qw(Email::MIME Email::Simple MIME::Entity Mail::Internet Mail::Message);
 
 plan tests => 2
             + (@classes * 2 + 2) * Test::EmailAbstract->tests_per_object

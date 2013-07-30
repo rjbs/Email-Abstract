@@ -1,6 +1,7 @@
 use strict;
-
+use warnings;
 package Email::Abstract::EmailSimple;
+# ABSTRACT: Email::Abstract wrapper for Email::Simple
 
 use Email::Abstract::Plugin;
 BEGIN { @Email::Abstract::EmailSimple::ISA = 'Email::Abstract::Plugin' };
@@ -13,36 +14,32 @@ sub construct {
     Email::Simple->new($rfc822);
 }
 
-sub get_header { 
-    my ($class, $obj, $header) = @_; 
-    $obj->header($header); 
+sub get_header {
+    my ($class, $obj, $header) = @_;
+    $obj->header($header);
 }
 
-sub get_body { 
-    my ($class, $obj) = @_; 
+sub get_body {
+    my ($class, $obj) = @_;
     $obj->body();
 }
 
-sub set_header { 
-    my ($class, $obj, $header, @data) = @_; 
-    $obj->header_set($header, @data); 
+sub set_header {
+    my ($class, $obj, $header, @data) = @_;
+    $obj->header_set($header, @data);
 }
 
 sub set_body   {
-    my ($class, $obj, $body) = @_; 
-    $obj->body_set($body); 
+    my ($class, $obj, $body) = @_;
+    $obj->body_set($body);
 }
 
-sub as_string { 
-    my ($class, $obj) = @_; 
+sub as_string {
+    my ($class, $obj) = @_;
     $obj->as_string();
 }
 
 1;
-
-=head1 NAME
-
-Email::Abstract::EmailSimple - Email::Abstract wrapper for Email::Simple
 
 =head1 DESCRIPTION
 

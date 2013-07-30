@@ -1,6 +1,8 @@
 Revision history for Email-Abstract.
 
-3.005     2013-07-30
+{{$NEXT}}
+          repackage, update bug tracker, etc.
+
           provide raw body on multipart Email::MIME messages (thanks,
           bailey@upenn)
           [rt.cpan.org #77624]

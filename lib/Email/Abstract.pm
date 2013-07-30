@@ -1,12 +1,13 @@
-require 5.006;
+use 5.006;
 use warnings;
 use strict;
 package Email::Abstract;
+# ABSTRACT: unified interface to mail representations
 use Carp;
 use Email::Simple;
 use MRO::Compat;
-$Email::Abstract::VERSION = '3.004';
-use Module::Pluggable
+
+use Module::Pluggable 1.5
   search_path => [__PACKAGE__],
   except      => 'Email::Abstract::Plugin',
   require     => 1;
@@ -113,10 +114,6 @@ sub cast {
 1;
 __END__
 
-=head1 NAME
-
-Email::Abstract - unified interface to mail representations
-
 =head1 SYNOPSIS
 
   my $message = Mail::Message->read($rfc822)
@@ -147,9 +144,9 @@ scratch, C<Email::Abstract> can be used to perform certain simple operations on
 an object regardless of its underlying representation.
 
 C<Email::Abstract> currently supports C<Mail::Internet>, C<MIME::Entity>,
-C<Mail::Message>, C<Email::Simple>, C<Email::MIME>, and C<Courriel>.  Other representations
-are encouraged to create their own C<Email::Abstract::*> class by copying
-C<Email::Abstract::EmailSimple>.  All modules installed under the
+C<Mail::Message>, C<Email::Simple>, C<Email::MIME>, and C<Courriel>.  Other
+representations are encouraged to create their own C<Email::Abstract::*> class
+by copying C<Email::Abstract::EmailSimple>.  All modules installed under the
 C<Email::Abstract> hierarchy will be automatically picked up and used.
 
 =head1 METHODS
@@ -234,26 +231,5 @@ as a class method, it returns false.
 Note that, because strings are converted to message objects before wrapping,
 this method will return an object when the Email::Abstract was constructed from
 a string. 
-
-=head1 PERL EMAIL PROJECT
-
-This module is maintained by the Perl Email Project
-
-L<http://emailproject.perl.org/wiki/Email::Abstract>
-
-=head1 AUTHOR
-
-Casey West, <F<casey@geeknest.com>>
-
-Simon Cozens, <F<simon@cpan.org>>
-
-Ricardo SIGNES, <F<rjbs@cpan.org>>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2004 by Simon Cozens
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
 
 =cut

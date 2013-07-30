@@ -1,5 +1,6 @@
 use strict;
 package Email::Abstract::MIMEEntity;
+# ABSTRACT: Email::Abstract wrapper for MIME::Entity
 
 use Email::Abstract::Plugin;
 BEGIN { @Email::Abstract::MIMEEntity::ISA = 'Email::Abstract::MailInternet' };
@@ -36,10 +37,6 @@ sub set_body {
 }
 
 1;
-
-=head1 NAME
-
-Email::Abstract::MIMEEntity - Email::Abstract wrapper for MIME::Entity
 
 =head1 DESCRIPTION
 

@@ -1,6 +1,7 @@
 Revision history for Email-Abstract.
 
 {{$NEXT}}
+          require Email::Simple 1.998 to allow ->new(\$string)
 
 3.005     2013-07-30 09:57:36 America/New_York
           repackage, update bug tracker, etc.

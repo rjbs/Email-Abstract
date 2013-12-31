@@ -106,11 +106,12 @@ sub class_ok  { shift->_do_tests(0, @_); }
 sub object_ok { shift->_do_tests(1, @_); }
 
 sub load {
-  my ($self, $class) = @_;
+  my ($self, $class, $arg) = @_;
   if (eval "require $class; Email::Abstract->__class_for('$class')") {
     diag "testing $class with " . $class->VERSION;
   } else {
-    skip "$class: unavailable", $self->tests_per_module;
+    my $skip = $arg && $arg->{SKIP} ? $arg->{SKIP} : $self->tests_per_module;
+    skip "$class: unavailable", $skip;
   }
 }
 

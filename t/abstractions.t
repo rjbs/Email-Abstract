@@ -87,7 +87,7 @@ for my $ref (0..1) {
 
 {
   SKIP: {
-    $tester->load('MIME::Entity'); # cheating!!! -- rjbs, 2013-07-30
+    $tester->load('MIME::Entity', { SKIP => 1 });
 
     open my $fh, '<', 't/multipart.msg' or die "can't open t/multipart.msg: $!";
     my $message = do { local $/; <$fh>; };

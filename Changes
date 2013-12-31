@@ -2,6 +2,9 @@ Revision history for Email-Abstract.
 
 {{$NEXT}}
 
+3.007     2013-12-31 10:39:14 America/New_York
+          fix skip count when MIME::Entity is not present
+
 3.006     2013-09-01 08:41:48 America/New_York
           require Email::Simple 1.998 to allow ->new(\$string)
 

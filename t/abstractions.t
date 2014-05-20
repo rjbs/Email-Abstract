@@ -12,7 +12,7 @@ my @classes
 plan tests => 2
             + (@classes * 2 + 2) * Test::EmailAbstract->tests_per_object
             + (@classes + 4) * Test::EmailAbstract->tests_per_class
-            + 3;
+            + 4;
 
 use_ok("Email::Abstract");
 
@@ -102,6 +102,30 @@ for my $ref (0..1) {
     my $entity = $parser->parse_data($message);
 
     my $abstract = Email::Abstract->new($entity);
+
+    like(
+      $abstract->get_body,
+      qr/us-ascii/,
+      "minimal body test on MIME::Entity",
+    );
+  }
+}
+
+{
+  SKIP: {
+    $tester->load('Email::MIME', { SKIP => 1 });
+
+    open my $fh, '<', 't/multipart.msg' or die "can't open t/multipart.msg: $!";
+    my $message = do { local $/; <$fh>; };
+    close $fh or die "error closing t/multipart.msg after read: $!";
+
+    # Let's be generous and start with real CRLF, no matter what stupid thing the
+    # VCS or archive tools have done to the message.
+    $message =~ s/\x0a\x0d|\x0d\x0a|\x0d|\x0a/\x0d\x0a/g;
+
+    my $email = Email::MIME->new(\$message);
+
+    my $abstract = Email::Abstract->new($email);
 
     like(
       $abstract->get_body,

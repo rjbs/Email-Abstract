@@ -1,6 +1,8 @@
 Revision history for Email-Abstract.
 
 {{$NEXT}}
+
+3.008     2014-12-27 18:36:19-05:00 America/New_York
         - make results of get_body be the same on Email::{Simple,MIME}
         - ...but this method is a mess, so maybe avoid using Abstract for body
           work

@@ -17,11 +17,10 @@ sub construct {
 sub get_body {
     my ($class, $obj) = @_;
 
-    # This is "safe" because a multipart body must be 7bit clean.
-    # -- rjbs, 2014-05-20
-    return $obj->body_raw if $obj->subparts;
-
-    return $obj->body;
+    # Return the same thing you'd get from Email::Simple.
+    #
+    # Ugh.  -- rjbs, 2014-12-27
+    return $obj->body_raw;
 }
 
 1;

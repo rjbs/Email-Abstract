@@ -1,6 +1,9 @@
 Revision history for Email-Abstract.
 
 {{$NEXT}}
+        - make results of get_body be the same on Email::{Simple,MIME}
+        - ...but this method is a mess, so maybe avoid using Abstract for body
+          work
 
 3.007     2013-12-31 10:39:14 America/New_York
           fix skip count when MIME::Entity is not present

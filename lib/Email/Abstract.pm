@@ -3,6 +3,7 @@ use warnings;
 use strict;
 package Email::Abstract;
 # ABSTRACT: unified interface to mail representations
+
 use Carp;
 use Email::Simple;
 use MRO::Compat;

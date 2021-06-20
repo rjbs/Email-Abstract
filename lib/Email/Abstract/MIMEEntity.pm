@@ -8,7 +8,7 @@ BEGIN { @Email::Abstract::MIMEEntity::ISA = 'Email::Abstract::MailInternet' };
 my $is_avail;
 sub is_available {
   return $is_avail if defined $is_avail;
-  eval { require MIME::Entity; MIME::Entity->VERSION(5.501); 1 };
+  eval { require MIME::Entity; MIME::Entity->VERSION(5.508); 1 };
   return $is_avail = $@ ? 0 : 1;
 }
 

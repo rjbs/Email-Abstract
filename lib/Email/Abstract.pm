@@ -231,6 +231,6 @@ as a class method, it returns false.
 
 Note that, because strings are converted to message objects before wrapping,
 this method will return an object when the Email::Abstract was constructed from
-a string. 
+a string.
 
 =cut
